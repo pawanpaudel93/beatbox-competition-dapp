@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useMoralis } from 'react-moralis'
+import { useConnect } from 'wagmi'
 import {
   Box,
   Flex,
@@ -23,10 +24,11 @@ import {
   ChevronDownIcon,
   ChevronRightIcon,
 } from '@chakra-ui/icons'
+import NextLink from 'next/link'
 
 export default function WithSubnavigation() {
   const { isOpen, onToggle } = useDisclosure()
-
+  const { connect, connectors } = useConnect()
   const {
     authenticate,
     isAuthenticated,
@@ -38,7 +40,11 @@ export default function WithSubnavigation() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      console.log('isAuthenticated')
+      try {
+        connect(connectors[0])
+      } catch (e) {
+        console.log(e)
+      }
     }
   }, [isAuthenticated])
 
@@ -89,13 +95,16 @@ export default function WithSubnavigation() {
           />
         </Flex>
         <Flex flex={{ base: 1 }} justify={{ base: 'center', md: 'start' }}>
-          <Text
-            textAlign={useBreakpointValue({ base: 'center', md: 'left' })}
-            fontFamily={'heading'}
-            color={useColorModeValue('gray.800', 'white')}
-          >
-            BeatboxCompetitions
-          </Text>
+          <NextLink href="/" passHref>
+            <Text
+              textAlign={useBreakpointValue({ base: 'center', md: 'left' })}
+              fontFamily={'heading'}
+              color={useColorModeValue('gray.800', 'white')}
+              cursor="pointer"
+            >
+              BeatboxCompetitions
+            </Text>
+          </NextLink>
 
           <Flex display={{ base: 'none', md: 'flex' }} ml={10}>
             <DesktopNav />

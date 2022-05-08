@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import {
   Center,
@@ -11,14 +11,23 @@ import {
 import { AiFillFileAdd } from 'react-icons/ai'
 
 type FileUploadProps = {
-  handleImageCallback: (image: string) => void
+  handleImageCallback: (image: File) => void
+  handleImageClearCallback: (clearImage: boolean) => void
+  clearImage: boolean
+  isRequired: boolean
 }
 
-export default function Dropzone({ handleImageCallback }: FileUploadProps) {
-  const [file, setFile] = useState({
+export default function Dropzone({
+  handleImageCallback,
+  handleImageClearCallback,
+  clearImage,
+  isRequired,
+}: FileUploadProps) {
+  const defaultImage = {
     name: '',
     preview: '',
-  })
+  }
+  const [file, setFile] = useState(defaultImage)
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: (acceptedFiles) => {
@@ -26,7 +35,7 @@ export default function Dropzone({ handleImageCallback }: FileUploadProps) {
         preview: URL.createObjectURL(acceptedFiles[0]),
         name: acceptedFiles[0].name,
       })
-      handleImageCallback('hello')
+      handleImageCallback(acceptedFiles[0])
     },
     accept: {
       'image/*': ['.jpeg', '.png', '.jpg', '.gif', '.svg'],
@@ -35,9 +44,16 @@ export default function Dropzone({ handleImageCallback }: FileUploadProps) {
     multiple: false,
   })
 
+  useEffect(() => {
+    if (clearImage) {
+      setFile(defaultImage)
+      handleImageClearCallback(false)
+    }
+  }, [clearImage])
+
   const dropText = isDragActive
     ? 'Drop the files here ...'
-    : "Drag 'n' drop image here, or click to select files"
+    : "Drag 'n' drop image here, or click to select image"
 
   const activeBg = useColorModeValue('gray.100', 'gray.600')
   const borderColor = useColorModeValue(
@@ -58,13 +74,15 @@ export default function Dropzone({ handleImageCallback }: FileUploadProps) {
         borderColor={borderColor}
         {...getRootProps()}
       >
-        <input {...getInputProps()} />
+        <input {...getInputProps()} required={isRequired} />
         <Icon as={AiFillFileAdd} mr={2} />
         <p>{dropText}</p>
       </Center>
       {file.preview && (
         <Box marginTop={3}>
-          <Image src={file.preview} alt={file.name} w="100%" />
+          <Center>
+            <Image src={file.preview} alt={file.name} w="50%" h="50%" />
+          </Center>
         </Box>
       )}
     </Container>
