@@ -17,6 +17,7 @@ export default function AllWildcards() {
     [contractAddress],
     {
       autoFetch: true,
+      live: true,
     }
   )
 

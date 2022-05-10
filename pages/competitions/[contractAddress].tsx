@@ -12,13 +12,13 @@ import {
 import Wildcards from '../../components/wildcard/Wildcards'
 import CompetitionInfo from '../../components/competition/CompetitionInfo'
 import { BBX_COMPETITION_ABI } from '../../constants'
-import { useProvider } from 'wagmi'
 import { ICompetition } from '../../interfaces'
-import { BigNumber, Contract } from 'ethers'
+import { BigNumber } from 'ethers'
+import { useMoralis } from 'react-moralis'
 
 const ContractDetail: NextPage = () => {
   const router = useRouter()
-  const provider = useProvider()
+  const { Moralis } = useMoralis()
   const [competition, setCompetition] = useState<ICompetition>({
     name: '',
     description: '',
@@ -35,12 +35,13 @@ const ContractDetail: NextPage = () => {
   }, [contractAddress])
 
   const fetchMetaData = async () => {
-    const contract = new Contract(
-      contractAddress as string,
-      BBX_COMPETITION_ABI,
-      provider
-    )
-    const metadata = await contract.metaData()
+    const options = {
+      contractAddress: contractAddress as string,
+      functionName: 'metaData',
+      abi: BBX_COMPETITION_ABI,
+      params: {},
+    }
+    const metadata = await Moralis.executeFunction(options)
     setCompetition(metadata as unknown as ICompetition)
   }
 

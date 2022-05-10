@@ -13,11 +13,11 @@ import {
 } from '@chakra-ui/react'
 import { useMoralisFile } from 'react-moralis'
 import FileUpload from '../components/FileUpload'
-import { useContract, useSigner } from 'wagmi'
 import {
   COMPETITION_FACTORY_ADDRESS,
   COMPETITION_FACTORY_ABI,
 } from '../constants'
+import { useMoralis } from 'react-moralis'
 
 const CreateCompetition: NextPage = () => {
   const [name, setName] = useState('')
@@ -28,6 +28,8 @@ const CreateCompetition: NextPage = () => {
   const today = new Date().toISOString().split('T')[0]
   const [wildcardStart, setWildcardStart] = useState(today)
   const [wildcardEnd, setWildcardEnd] = useState(today)
+
+  const { Moralis } = useMoralis()
 
   const { saveFile } = useMoralisFile()
 
@@ -50,14 +52,6 @@ const CreateCompetition: NextPage = () => {
     setClearImage(clearImage)
   }
 
-  const { data: signer } = useSigner()
-
-  const competitionContract = useContract({
-    addressOrName: COMPETITION_FACTORY_ADDRESS,
-    contractInterface: COMPETITION_FACTORY_ABI,
-    signerOrProvider: signer,
-  })
-
   const uploadFile = async () => {
     const fileIpfs = (await saveFile(image?.name as string, image as File, {
       saveIPFS: true,
@@ -74,13 +68,19 @@ const CreateCompetition: NextPage = () => {
         new Date(wildcardStart).getTime() / 1000
       )
       const _wildcardEnd = Math.floor(new Date(wildcardEnd).getTime() / 1000)
-      const competitionTx = await competitionContract.createCompetition(
-        name,
-        description,
-        imageUrl,
-        _wildcardStart,
-        _wildcardEnd
-      )
+      const options = {
+        contractAddress: COMPETITION_FACTORY_ADDRESS,
+        functionName: 'createCompetition',
+        abi: COMPETITION_FACTORY_ABI,
+        params: {
+          name,
+          description,
+          image: imageUrl,
+          wildcardStart: _wildcardStart,
+          wildcardEnd: _wildcardEnd,
+        },
+      }
+      const competitionTx = await Moralis.executeFunction(options)
       await competitionTx.wait()
       clearForm()
       setIsLoading(false)

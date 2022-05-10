@@ -1,6 +1,5 @@
-import { useEffect } from 'react'
 import { useMoralis } from 'react-moralis'
-import { useConnect } from 'wagmi'
+import { useAuthentication } from '../context/AuthenticationContext'
 import {
   Box,
   Flex,
@@ -27,44 +26,16 @@ import {
 import NextLink from 'next/link'
 
 export default function WithSubnavigation() {
+  const { signin, signout } = useAuthentication()
   const { isOpen, onToggle } = useDisclosure()
-  const { connect, connectors } = useConnect()
-  const {
-    authenticate,
-    isAuthenticated,
-    isAuthenticating,
-    user,
-    account,
-    logout,
-  } = useMoralis()
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      try {
-        connect(connectors[0])
-      } catch (e) {
-        console.log(e)
-      }
-    }
-  }, [isAuthenticated])
+  const { isAuthenticated, isAuthenticating } = useMoralis()
 
   const login = async () => {
-    if (!isAuthenticated) {
-      try {
-        const user = await authenticate({
-          signingMessage: 'Sign in to your account',
-        })
-        console.log('isAuthenticated', user, account)
-        console.log(user!.get('ethAddress'))
-      } catch (error) {
-        console.error(error)
-      }
-    }
+    signin()
   }
 
   const logOut = async () => {
-    await logout()
-    console.log('Logged out')
+    signout()
   }
 
   return (
@@ -222,38 +193,39 @@ const DesktopNav = () => {
 
 const DesktopSubNav = ({ label, href, subLabel }: NavItem) => {
   return (
-    <Link
-      href={href}
-      role={'group'}
-      display={'block'}
-      p={2}
-      rounded={'md'}
-      _hover={{ bg: useColorModeValue('blue.50', 'gray.900') }}
-    >
-      <Stack direction={'row'} align={'center'}>
-        <Box>
-          <Text
+    <NextLink href={href ?? '#'} passHref>
+      <Link
+        role={'group'}
+        display={'block'}
+        p={2}
+        rounded={'md'}
+        _hover={{ bg: useColorModeValue('blue.50', 'gray.900') }}
+      >
+        <Stack direction={'row'} align={'center'}>
+          <Box>
+            <Text
+              transition={'all .3s ease'}
+              _groupHover={{ color: 'blue.400' }}
+              fontWeight={500}
+            >
+              {label}
+            </Text>
+            <Text fontSize={'sm'}>{subLabel}</Text>
+          </Box>
+          <Flex
             transition={'all .3s ease'}
-            _groupHover={{ color: 'blue.400' }}
-            fontWeight={500}
+            transform={'translateX(-10px)'}
+            opacity={0}
+            _groupHover={{ opacity: '100%', transform: 'translateX(0)' }}
+            justify={'flex-end'}
+            align={'center'}
+            flex={1}
           >
-            {label}
-          </Text>
-          <Text fontSize={'sm'}>{subLabel}</Text>
-        </Box>
-        <Flex
-          transition={'all .3s ease'}
-          transform={'translateX(-10px)'}
-          opacity={0}
-          _groupHover={{ opacity: '100%', transform: 'translateX(0)' }}
-          justify={'flex-end'}
-          align={'center'}
-          flex={1}
-        >
-          <Icon color={'blue.400'} w={5} h={5} as={ChevronRightIcon} />
-        </Flex>
-      </Stack>
-    </Link>
+            <Icon color={'blue.400'} w={5} h={5} as={ChevronRightIcon} />
+          </Flex>
+        </Stack>
+      </Link>
+    </NextLink>
   )
 }
 
@@ -314,9 +286,11 @@ const MobileNavItem = ({ label, children, href }: NavItem) => {
         >
           {children &&
             children.map((child) => (
-              <Link key={child.label} py={2} href={child.href}>
-                {child.label}
-              </Link>
+              <NextLink href={child.href ?? '#'} passHref key={child.label}>
+                <Link key={child.label} py={2}>
+                  {child.label}
+                </Link>
+              </NextLink>
             ))}
         </Stack>
       </Collapse>
@@ -363,11 +337,11 @@ const NAV_ITEMS: Array<NavItem> = [
     ],
   },
   {
-    label: 'Learn Design',
-    href: '#',
+    label: 'Create Competition',
+    href: '/create-competition',
   },
   {
-    label: 'Hire Designers',
-    href: '#',
+    label: 'My Competitions',
+    href: '/my-competitions',
   },
 ]

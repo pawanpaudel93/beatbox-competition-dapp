@@ -11,7 +11,7 @@ interface WildcardsProps {
 
 export default function Wildcards({ competition }: WildcardsProps) {
   return (
-    <Tabs align="end">
+    <Tabs>
       <TabList>
         <Tab>Submit Wildcard</Tab>
         <Tab>All Wildcards</Tab>

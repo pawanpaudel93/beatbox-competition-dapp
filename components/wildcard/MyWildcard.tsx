@@ -33,6 +33,7 @@ export default function MyWilcard({ competition }: MyWilcardProps) {
     [contractAddress, user?.attributes.ethAddress],
     {
       autoFetch: true,
+      live: true,
     }
   )
 

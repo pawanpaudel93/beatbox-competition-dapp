@@ -622,6 +622,24 @@ export const BBX_COMPETITION_ABI = [
     {
         "inputs": [
             {
+                "internalType": "address[]",
+                "name": "beatboxerAddresses",
+                "type": "address[]"
+            },
+            {
+                "internalType": "string[]",
+                "name": "_names",
+                "type": "string[]"
+            }
+        ],
+        "name": "addBeatboxers",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
                 "internalType": "address",
                 "name": "judgeAddress",
                 "type": "address"
