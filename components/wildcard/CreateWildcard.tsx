@@ -46,6 +46,7 @@ export default function CreateWildcard({ competition }: CreateWildcardProps) {
       contractAddress,
       userAddress: user?.attributes.ethAddress,
       isWinner: false,
+      rank: null,
     }
     const Wildcard = Moralis.Object.extend('Wildcard')
     const query = new Moralis.Query(Wildcard)
@@ -83,7 +84,7 @@ export default function CreateWildcard({ competition }: CreateWildcardProps) {
       </Center>
       <form onSubmit={onSubmit}>
         <FormControl padding={3} isRequired>
-          <FormLabel htmlFor="competition-name">Name</FormLabel>
+          <FormLabel htmlFor="beatboxer-name">Name</FormLabel>
           <Input
             id="beatboxer-name"
             placeholder="Beatboxer Name"

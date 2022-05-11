@@ -10,6 +10,7 @@ import {
   Center,
 } from '@chakra-ui/react'
 import Wildcards from '../../components/wildcard/Wildcards'
+import Judges from '../../components/judge/Judges'
 import CompetitionInfo from '../../components/competition/CompetitionInfo'
 import { BBX_COMPETITION_ABI } from '../../constants'
 import { ICompetition } from '../../interfaces'
@@ -50,6 +51,7 @@ const ContractDetail: NextPage = () => {
       <TabList>
         <Tab>Info</Tab>
         <Tab>Wildcards</Tab>
+        <Tab>Judges</Tab>
       </TabList>
 
       <TabPanels>
@@ -60,6 +62,9 @@ const ContractDetail: NextPage = () => {
         </TabPanel>
         <TabPanel>
           <Wildcards competition={competition} />
+        </TabPanel>
+        <TabPanel>
+          <Judges competition={competition} />
         </TabPanel>
       </TabPanels>
     </Tabs>

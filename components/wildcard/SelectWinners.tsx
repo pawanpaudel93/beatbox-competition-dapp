@@ -17,6 +17,7 @@ import { toast } from 'react-toastify'
 import { FormEvent, useState } from 'react'
 import { BBX_COMPETITION_ABI } from '../../constants'
 import { useMoralis } from 'react-moralis'
+import Moralis from 'moralis'
 
 type Item = {
   value: string
@@ -59,9 +60,9 @@ export default function SelectWinners({
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault()
     try {
-      const wildcardToUpdate = selectedItems.map((item) => ({
+      const wildcardToUpdate = selectedItems.map((item, index) => ({
         filter: { objectId: item.value },
-        update: { isWinner: true },
+        update: { isWinner: true, rank: index + 1 },
       }))
       await Moralis.Cloud.run('selectWinners', { query: wildcardToUpdate })
       const addresses = selectedItems.map((item) => item.address)
