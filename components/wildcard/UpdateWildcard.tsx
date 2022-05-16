@@ -30,12 +30,10 @@ type UpdateWildcardProps = {
       userAddress: string
     }
   }
-  fetchCallback: () => void
 }
 
 export default function UpdateWildcard({
   wildcard,
-  fetchCallback,
 }: UpdateWildcardProps & Moralis.Object<Moralis.Attributes>) {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [name, setName] = useState(wildcard.attributes.name)
@@ -58,7 +56,6 @@ export default function UpdateWildcard({
       wildcard?.set('videoUrl', videoUrl)
       await wildcard?.save()
       toast.success('Wildcard updated')
-      fetchCallback()
     } catch (error) {
       toast.error('Error updating wildcard')
     }

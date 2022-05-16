@@ -1,16 +1,24 @@
-import { useMoralisQuery, useMoralis } from 'react-moralis'
+import { useMoralis } from 'react-moralis'
 import { Box, Grid } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
 import UpdateWildcard from './UpdateWildcard'
 import { ICompetition } from '../../interfaces'
+import Moralis from 'moralis'
 
 interface MyWilcardProps {
   competition: ICompetition
+  allWildcards: {
+    isFetching: boolean
+    isLoading: boolean
+    error: Error | null
+    data: Moralis.Object[]
+  }
 }
 
-export default function MyWilcard({ competition }: MyWilcardProps) {
-  const router = useRouter()
-  const { contractAddress } = router.query
+export default function MyWilcard({
+  competition,
+  allWildcards,
+}: MyWilcardProps) {
   const { user } = useMoralis()
   const wildcardStarted =
     parseInt(competition.wildcardStart.toString()) * 1000 <=
@@ -19,34 +27,17 @@ export default function MyWilcard({ competition }: MyWilcardProps) {
     parseInt(competition.wildcardEnd.toString()) * 1000 <= new Date().getTime()
   const isDisabled = !wildcardStarted || wildcardEnded
 
-  const {
-    data: wildcards,
-    isFetching,
-    isLoading,
-    error,
-    fetch,
-  } = useMoralisQuery(
-    'Wildcard',
-    (query) =>
-      query.equalTo('contractAddress', contractAddress) &&
-      query.equalTo('userAddress', user?.attributes.ethAddress),
-    [contractAddress, user?.attributes.ethAddress],
-    {
-      autoFetch: true,
-      live: true,
-    }
+  const wildcards = allWildcards.data.filter(
+    (wildcard) =>
+      wildcard.attributes.userAddress === user?.attributes.ethAddress
   )
 
-  const fetchCallback = () => {
-    fetch()
-  }
-
-  if (isFetching) {
+  if (allWildcards.isFetching) {
     return <Box>Fetching wildcard...</Box>
-  } else if (isLoading) {
+  } else if (allWildcards.isLoading) {
     return <Box>Loading wildcard...</Box>
-  } else if (error) {
-    return <Box>Error fetching wildcard: {error.message}</Box>
+  } else if (allWildcards.error) {
+    return <Box>Error fetching wildcard: {allWildcards.error.message}</Box>
   }
 
   return (
@@ -85,12 +76,7 @@ export default function MyWilcard({ competition }: MyWilcardProps) {
                   {wildcard.attributes.name}
                 </Box>
               </Box>
-              {!isDisabled && (
-                <UpdateWildcard
-                  wildcard={wildcard}
-                  fetchCallback={fetchCallback}
-                />
-              )}
+              {!isDisabled && <UpdateWildcard wildcard={wildcard} />}
             </Box>
           </Box>
         ))

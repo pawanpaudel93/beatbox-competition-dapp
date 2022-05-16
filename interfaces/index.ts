@@ -10,3 +10,29 @@ export interface ICompetition {
     wildcardStart: BigNumber
     wildcardEnd: BigNumber
 }
+
+export interface IBeatboxer {
+    name: string
+    address: string
+}
+
+export interface IBattle {
+    id: BigNumber
+    name: string
+    category: string
+    winningAmount: BigNumber
+    winnerAddress: string
+    startTime: BigNumber
+    endTime: BigNumber
+    totalVotes: BigNumber
+    beatboxerOne: {
+        score: BigNumber
+        beatboxerAddress: string
+        videoUrl: string
+    }
+    beatboxerTwo: {
+        score: BigNumber
+        beatboxerAddress: string
+        videoUrl: string
+    }
+}

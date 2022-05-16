@@ -16,6 +16,7 @@ import { BBX_COMPETITION_ABI } from '../../constants'
 import { ICompetition } from '../../interfaces'
 import { BigNumber } from 'ethers'
 import { useMoralis } from 'react-moralis'
+import Battles from '../../components/battle/Battles'
 
 const ContractDetail: NextPage = () => {
   const router = useRouter()
@@ -52,6 +53,7 @@ const ContractDetail: NextPage = () => {
         <Tab>Info</Tab>
         <Tab>Wildcards</Tab>
         <Tab>Judges</Tab>
+        <Tab>Battles</Tab>
       </TabList>
 
       <TabPanels>
@@ -65,6 +67,9 @@ const ContractDetail: NextPage = () => {
         </TabPanel>
         <TabPanel>
           <Judges competition={competition} />
+        </TabPanel>
+        <TabPanel>
+          <Battles competition={competition} />
         </TabPanel>
       </TabPanels>
     </Tabs>

@@ -1,34 +1,29 @@
-import { useMoralisQuery, useMoralis } from 'react-moralis'
+import { useMoralis } from 'react-moralis'
 import { Box, Grid } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
 import { useState, useEffect } from 'react'
 import { ethers } from 'ethers'
 import { BBX_COMPETITION_ABI } from '../../constants'
 import SelectWinners from './SelectWinners'
+import Moralis from 'moralis'
+interface WildcardWinnersProps {
+  allWildcards: {
+    isFetching: boolean
+    isLoading: boolean
+    error: Error | null
+    data: Moralis.Object[]
+  }
+}
 
-export default function WildcardWinners() {
+export default function WildcardWinners({
+  allWildcards,
+}: WildcardWinnersProps) {
   const [isAdmin, setIsAdmin] = useState(false)
   const router = useRouter()
   const { contractAddress } = router.query
   const { user, Moralis, isWeb3Enabled } = useMoralis()
 
-  const {
-    data: allWildcards,
-    isFetching,
-    isLoading,
-    error,
-    fetch,
-  } = useMoralisQuery(
-    'Wildcard',
-    (query) => query.equalTo('contractAddress', contractAddress),
-    [contractAddress],
-    {
-      autoFetch: true,
-      live: true,
-    }
-  )
-
-  const wildcards = allWildcards.filter((w) => w.attributes.isWinner)
+  const wildcards = allWildcards.data.filter((w) => w.attributes.isWinner)
 
   useEffect(() => {
     if (isWeb3Enabled && contractAddress) {
@@ -56,25 +51,22 @@ export default function WildcardWinners() {
     }
   }
 
-  const updateWildcardsCallback = () => {
-    fetch()
-  }
-
-  if (isFetching) {
+  if (allWildcards.isFetching) {
     return <Box>Fetching selected wildcards...</Box>
-  } else if (isLoading) {
+  } else if (allWildcards.isLoading) {
     return <Box>Loading selected wildcards...</Box>
-  } else if (error) {
-    return <Box>Error fetching selected wildcards: {error.message}</Box>
+  } else if (allWildcards.error) {
+    return (
+      <Box>Error fetching selected wildcards: {allWildcards.error.message}</Box>
+    )
   }
 
   return (
     <>
       {!isAdmin && contractAddress && (
         <SelectWinners
-          wildcards={allWildcards}
+          wildcards={allWildcards.data}
           contractAddress={contractAddress as string}
-          updateWildcardsCallback={updateWildcardsCallback}
         />
       )}
       <Grid templateColumns="repeat(5, 1fr)" gap={6}>

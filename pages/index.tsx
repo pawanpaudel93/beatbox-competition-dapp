@@ -15,8 +15,6 @@ const Home: NextPage = () => {
     }
   )
 
-  console.log(data)
-
   const competitions: ICompetition[] = data?.map((competition) => ({
     competitionId: competition.attributes.competitionId,
     name: competition.attributes.name,

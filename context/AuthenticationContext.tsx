@@ -10,11 +10,26 @@ export const AuthenticationContext = createContext<{
 })
 
 export const AuthenticationProvider = ({ children }) => {
-  const { authenticate, isAuthenticated, logout, isWeb3Enabled, enableWeb3 } =
-    useMoralis()
+  const {
+    authenticate,
+    isAuthenticated,
+    logout,
+    isWeb3Enabled,
+    enableWeb3,
+    Moralis,
+  } = useMoralis()
 
   useEffect(() => {
     authentication()
+    const unsubscribe = Moralis.onAccountChanged(async (address) => {
+      console.log('Account changed', address)
+      await authenticate({
+        signingMessage: 'Sign in to your account',
+      })
+    })
+    return () => {
+      unsubscribe()
+    }
   }, [isWeb3Enabled])
 
   const authentication = async () => {

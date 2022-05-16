@@ -1,38 +1,28 @@
-import { useMoralisQuery } from 'react-moralis'
 import { Box, Grid } from '@chakra-ui/react'
-import { useRouter } from 'next/router'
+import Moralis from 'moralis'
 
-export default function AllWildcards() {
-  const router = useRouter()
-  const { contractAddress } = router.query
+interface AllWildcardsProps {
+  wildcards: {
+    isFetching: boolean
+    isLoading: boolean
+    error: Error | null
+    data: Moralis.Object[]
+  }
+}
 
-  const {
-    data: wildcards,
-    isFetching,
-    isLoading,
-    error,
-  } = useMoralisQuery(
-    'Wildcard',
-    (query) => query.equalTo('contractAddress', contractAddress),
-    [contractAddress],
-    {
-      autoFetch: true,
-      live: true,
-    }
-  )
-
-  if (isFetching) {
+export default function AllWildcards({ wildcards }: AllWildcardsProps) {
+  if (wildcards.isFetching) {
     return <Box>Fetching wildcards...</Box>
-  } else if (isLoading) {
+  } else if (wildcards.isLoading) {
     return <Box>Loading wildcards...</Box>
-  } else if (error) {
-    return <Box>Error fetching wildcards: {error.message}</Box>
+  } else if (wildcards.error) {
+    return <Box>Error fetching wildcards: {wildcards.error.message}</Box>
   }
 
   return (
     <Grid templateColumns="repeat(5, 1fr)" gap={6}>
-      {wildcards.length > 0 ? (
-        wildcards.map((wildcard, index) => (
+      {wildcards.data.length > 0 ? (
+        wildcards.data.map((wildcard, index) => (
           <Box
             maxW="sm"
             borderWidth="1px"

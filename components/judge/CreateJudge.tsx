@@ -94,8 +94,8 @@ export default function CreateJudge() {
             placeholder="Judge Wallet Address"
             value={address}
             onChange={(e: ChangeEvent<HTMLInputElement>) => {
-              setIsError(!ethers.utils.isAddress(address))
               setAddress(e.target.value)
+              setIsError(!ethers.utils.isAddress(e.target.value))
             }}
           />
           {isError && (

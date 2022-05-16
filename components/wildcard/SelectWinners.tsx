@@ -27,13 +27,11 @@ type Item = {
 
 type SelectWinnersProps = {
   wildcards: Moralis.Object<Moralis.Attributes>[]
-  updateWildcardsCallback: () => void
   contractAddress: string
 }
 
 export default function SelectWinners({
   wildcards,
-  updateWildcardsCallback,
   contractAddress,
 }: SelectWinnersProps) {
   const seedData = wildcards.map((wildcard) => ({
@@ -78,7 +76,6 @@ export default function SelectWinners({
       }
       const addBeatboxersTx = await Moralis.executeFunction(options)
       await addBeatboxersTx.wait()
-      updateWildcardsCallback()
     } catch (e) {
       console.log(e)
       toast.error(e.message)
