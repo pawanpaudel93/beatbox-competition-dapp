@@ -7,8 +7,7 @@ export interface ICompetition {
     contractAddress?: string
     creator?: string
     competitionId?: BigNumber
-    wildcardStart: BigNumber
-    wildcardEnd: BigNumber
+    competitionState: number
 }
 
 export interface IBeatboxer {
@@ -19,7 +18,7 @@ export interface IBeatboxer {
 export interface IBattle {
     id: BigNumber
     name: string
-    category: string
+    category: number
     winningAmount: BigNumber
     winnerAddress: string
     startTime: BigNumber

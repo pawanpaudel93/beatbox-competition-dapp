@@ -5,20 +5,23 @@ import { ICompetition } from '../../interfaces'
 
 interface WildcardsProps {
   competition: ICompetition
+  isAdmin: boolean
 }
 
-export default function Judges({ competition }: WildcardsProps) {
+export default function Judges({ competition, isAdmin }: WildcardsProps) {
   return (
     <Tabs>
       <TabList>
-        <Tab>Add Judge</Tab>
+        {isAdmin && <Tab>Add Judge</Tab>}
         <Tab>All Judges</Tab>
       </TabList>
 
       <TabPanels>
-        <TabPanel>
-          <CreateJudge />
-        </TabPanel>
+        {isAdmin && (
+          <TabPanel>
+            <CreateJudge />
+          </TabPanel>
+        )}
         <TabPanel>
           <AllJudges />
         </TabPanel>

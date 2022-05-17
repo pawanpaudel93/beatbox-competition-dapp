@@ -17,6 +17,7 @@ import {
   useBreakpointValue,
   useDisclosure,
 } from '@chakra-ui/react'
+
 import {
   HamburgerIcon,
   CloseIcon,
@@ -25,18 +26,10 @@ import {
 } from '@chakra-ui/icons'
 import NextLink from 'next/link'
 
-export default function WithSubnavigation() {
+export default function NavBar() {
   const { signin, signout } = useAuthentication()
   const { isOpen, onToggle } = useDisclosure()
   const { isAuthenticated, isAuthenticating } = useMoralis()
-
-  const login = async () => {
-    signin()
-  }
-
-  const logOut = async () => {
-    signout()
-  }
 
   return (
     <Box>
@@ -98,9 +91,9 @@ export default function WithSubnavigation() {
               _hover={{
                 bg: 'red.300',
               }}
-              onClick={logOut}
+              onClick={signout}
             >
-              Logout
+              Signout
             </Button>
           ) : (
             <Button
@@ -112,26 +105,12 @@ export default function WithSubnavigation() {
               _hover={{
                 bg: 'blue.300',
               }}
-              onClick={login}
+              onClick={signin}
               disabled={isAuthenticating}
             >
               Sign In
             </Button>
           )}
-
-          <Button
-            display={{ base: 'none', md: 'inline-flex' }}
-            fontSize={'sm'}
-            fontWeight={600}
-            color={'white'}
-            bg={'blue.400'}
-            href={'#'}
-            _hover={{
-              bg: 'blue.300',
-            }}
-          >
-            Sign Up
-          </Button>
         </Stack>
       </Flex>
 

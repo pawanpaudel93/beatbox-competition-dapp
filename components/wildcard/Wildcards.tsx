@@ -1,4 +1,4 @@
-import { Tabs, TabList, Tab, TabPanels, TabPanel } from '@chakra-ui/react'
+import { Tabs, TabList, Tab, TabPanels, TabPanel, Box } from '@chakra-ui/react'
 import CreateWildcard from './CreateWildcard'
 import AllWildcards from './AllWildcards'
 import MyWildcard from './MyWildcard'
@@ -9,9 +9,10 @@ import { ICompetition } from '../../interfaces'
 
 interface WildcardsProps {
   competition: ICompetition
+  isAdmin: boolean
 }
 
-export default function Wildcards({ competition }: WildcardsProps) {
+export default function Wildcards({ competition, isAdmin }: WildcardsProps) {
   const router = useRouter()
   const { contractAddress } = router.query
 
@@ -41,7 +42,11 @@ export default function Wildcards({ competition }: WildcardsProps) {
           <AllWildcards wildcards={wildcards} />
         </TabPanel>
         <TabPanel>
-          <WildcardWinners allWildcards={wildcards} />
+          {wildcards.isFetching ? (
+            <Box>Fetching selected wildcards...</Box>
+          ) : (
+            <WildcardWinners allWildcards={wildcards.data} isAdmin={isAdmin} />
+          )}
         </TabPanel>
         <TabPanel>
           <MyWildcard competition={competition} allWildcards={wildcards} />

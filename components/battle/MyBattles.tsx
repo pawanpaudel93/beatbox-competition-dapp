@@ -1,22 +1,18 @@
-import { useMoralisQuery, useMoralis } from 'react-moralis'
-import { Box, Grid } from '@chakra-ui/react'
-import { useRouter } from 'next/router'
 import { ICompetition } from '../../interfaces'
+import { CompetitionState } from '../../constants'
 
 interface MyBattlesProps {
   competition: ICompetition
 }
 
 export default function MyBattles({ competition }: MyBattlesProps) {
-  const router = useRouter()
-  const { contractAddress } = router.query
-  const { user } = useMoralis()
   const wildcardStarted =
-    parseInt(competition.wildcardStart.toString()) * 1000 <=
-    new Date().getTime()
+    CompetitionState.WILDCARD === competition.competitionState
   const wildcardEnded =
-    parseInt(competition.wildcardEnd.toString()) * 1000 <= new Date().getTime()
+    competition.competitionState !== CompetitionState.WILDCARD &&
+    competition.competitionState !== CompetitionState.NOT_STARTED
+
   const isDisabled = !wildcardStarted || wildcardEnded
 
-  return <></>
+  return <>No Battles yet!</>
 }

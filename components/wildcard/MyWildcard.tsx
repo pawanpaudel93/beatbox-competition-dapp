@@ -1,9 +1,9 @@
 import { useMoralis } from 'react-moralis'
 import { Box, Grid } from '@chakra-ui/react'
-import { useRouter } from 'next/router'
 import UpdateWildcard from './UpdateWildcard'
 import { ICompetition } from '../../interfaces'
 import Moralis from 'moralis'
+import { CompetitionState } from '../../constants'
 
 interface MyWilcardProps {
   competition: ICompetition
@@ -20,11 +20,12 @@ export default function MyWilcard({
   allWildcards,
 }: MyWilcardProps) {
   const { user } = useMoralis()
-  const wildcardStarted =
-    parseInt(competition.wildcardStart.toString()) * 1000 <=
-    new Date().getTime()
+  const competitionState = competition.competitionState
+  const wildcardStarted = competitionState === CompetitionState.WILDCARD
   const wildcardEnded =
-    parseInt(competition.wildcardEnd.toString()) * 1000 <= new Date().getTime()
+    competitionState !== CompetitionState.WILDCARD &&
+    competitionState !== CompetitionState.NOT_STARTED
+
   const isDisabled = !wildcardStarted || wildcardEnded
 
   const wildcards = allWildcards.data.filter(

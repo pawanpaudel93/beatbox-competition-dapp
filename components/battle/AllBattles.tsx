@@ -1,3 +1,4 @@
+import { Box } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { useMoralis } from 'react-moralis'
@@ -5,7 +6,12 @@ import { BBX_COMPETITION_ABI } from '../../constants'
 import { IBattle } from '../../interfaces'
 import SingleBattle from './SingleBattle'
 
-export default function AllBattles() {
+interface AllBattlesProps {
+  isJudge: boolean
+  votedBattles: { [key: number]: boolean }
+}
+
+export default function AllBattles({ isJudge, votedBattles }: AllBattlesProps) {
   const router = useRouter()
   const [battles, setBattles] = useState<IBattle[]>([])
   const { contractAddress } = router.query
@@ -42,13 +48,20 @@ export default function AllBattles() {
         },
       })
     }
-    console.log(_battles)
     setBattles(_battles)
   }
 
   useEffect(() => {
-    fetchAllBattles()
+    if (contractAddress) fetchAllBattles()
   }, [contractAddress])
+
+  if (battles.length === 0) {
+    return (
+      <Box>
+        <h1>No Battles yet.</h1>
+      </Box>
+    )
+  }
 
   return (
     <>
@@ -57,6 +70,8 @@ export default function AllBattles() {
           key={index}
           battle={battle}
           contractAddress={contractAddress as string}
+          isJudge={isJudge}
+          isVoted={votedBattles[battle.id.toNumber()]}
         />
       ))}
     </>

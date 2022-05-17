@@ -12,12 +12,12 @@ import {
   Select,
 } from '@chakra-ui/react'
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
-import { useMoralis, useMoralisQuery } from 'react-moralis'
+import { useMoralis } from 'react-moralis'
 import { useRouter } from 'next/router'
 import { toast } from 'react-toastify'
 import { ethers } from 'ethers'
 import { ICompetition } from '../../interfaces'
-import { BBX_COMPETITION_ABI } from '../../constants'
+import { BBX_COMPETITION_ABI, CompetitionState } from '../../constants'
 
 interface CreateBattleProps {
   competition: ICompetition
@@ -29,6 +29,12 @@ interface IBattle {
   name: string
 }
 
+interface IBeatboxer {
+  name: string
+  beatboxerAddress: string
+  latestScore: number
+}
+
 export default function CreateBattle({ competition }: CreateBattleProps) {
   // const today = '2022-05-14T11:23'
   const today = new Date()
@@ -38,7 +44,7 @@ export default function CreateBattle({ competition }: CreateBattleProps) {
     .slice(0, 2)
     .join(':')
   const [name, setName] = useState('')
-  const [category, setCategory] = useState('')
+  const [category, setCategory] = useState(0)
   const [winningAmount, setWinningAmount] = useState(0)
   const [battleStart, setBattleStart] = useState(today)
   const [battleEnd, setBattleEnd] = useState(today)
@@ -50,47 +56,55 @@ export default function CreateBattle({ competition }: CreateBattleProps) {
   const { Moralis } = useMoralis()
   const router = useRouter()
   const { contractAddress } = router.query
+  const battleCategory = [
+    ['Top 16', 2],
+    ['Top 8', 3],
+    ['Semi Final', 4],
+    ['Final', 5],
+  ]
 
-  const { data: wildcards, isFetching } = useMoralisQuery(
-    'Wildcard',
-    (query) =>
-      query
-        .equalTo('contractAddress', contractAddress)
-        .equalTo('isWinner', true),
-    [contractAddress],
-    {
-      autoFetch: true,
-      live: true,
-    }
-  )
-
-  useEffect(() => {
-    if (!isFetching) {
+  const fetchBeatboxers = async () => {
+    try {
+      const options = {
+        contractAddress: contractAddress as string,
+        abi: BBX_COMPETITION_ABI,
+        functionName: 'getCurrentBeatboxers',
+        params: {},
+      }
+      let beatboxers = (await Moralis.executeFunction(options)) as IBeatboxer[]
+      beatboxers = beatboxers.map((beatboxer) => ({
+        name: beatboxer.name,
+        beatboxerAddress: beatboxer.beatboxerAddress,
+        latestScore: beatboxer.latestScore,
+      }))
+      beatboxers.sort((a, b) => b.latestScore - a.latestScore)
       const _battles: IBattle[] = []
-      for (let i = 0; i < wildcards.length / 2; i++) {
-        const opponentIndex = wildcards.length - 1 - i
+      for (let i = 0; i < beatboxers.length / 2; i++) {
+        const opponentIndex = beatboxers.length - 1 - i
         _battles.push({
-          name: `${wildcards[i].attributes.name} V/S ${wildcards[opponentIndex].attributes.name}`,
-          names: [
-            wildcards[i].attributes.name,
-            wildcards[opponentIndex].attributes.name,
-          ],
+          name: `${beatboxers[i].name} V/S ${beatboxers[opponentIndex].name}`,
+          names: [beatboxers[i].name, beatboxers[opponentIndex].name],
           addresses: [
-            wildcards[i].attributes.userAddress as string,
-            wildcards[opponentIndex].attributes.userAddress as string,
+            beatboxers[i].beatboxerAddress as string,
+            beatboxers[opponentIndex].beatboxerAddress as string,
           ],
         })
       }
       setBattles(_battles)
+    } catch (error) {
+      console.error(error)
     }
-  }, [isFetching])
+  }
+
+  useEffect(() => {
+    if (contractAddress) {
+      fetchBeatboxers()
+    }
+  }, [contractAddress])
 
   const wildcardStarted =
-    parseInt(competition.wildcardStart.toString()) * 1000 <=
-    new Date().getTime()
-  const wildcardEnded =
-    parseInt(competition.wildcardEnd.toString()) * 1000 <= new Date().getTime()
-  const isDisabled = !wildcardStarted || wildcardEnded
+    CompetitionState.WILDCARD <= competition.competitionState
+  const wildcardEnded = CompetitionState.WILDCARD < competition.competitionState
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -125,7 +139,7 @@ export default function CreateBattle({ competition }: CreateBattleProps) {
 
   const clearForm = () => {
     setName('')
-    setCategory('')
+    setCategory(0)
     setBattleAddresses([])
     setVideoUrls(['', ''])
     setNames([])
@@ -151,17 +165,22 @@ export default function CreateBattle({ competition }: CreateBattleProps) {
         </FormControl>
         <FormControl padding={3} isRequired>
           <FormLabel htmlFor="battle-category">Category</FormLabel>
-          <Input
+          <Select
+            placeholder="Select Category"
             id="battle-category"
-            placeholder="Battle Category"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-          />
+            onChange={(e) => setCategory(parseInt(e.target.value))}
+          >
+            {battleCategory.map(([cat, index]) => (
+              <option key={index} value={2}>
+                {cat}
+              </option>
+            ))}
+          </Select>
         </FormControl>
         <FormControl padding={3} isRequired>
           <FormLabel htmlFor="battle-select">Beatboxer v/s Beatboxer</FormLabel>
           <Select
-            placeholder="Select option"
+            placeholder="Select battle"
             onChange={(e: ChangeEvent<HTMLSelectElement>) => {
               if (e.target.value) {
                 setBattleAddresses(e.target.value.split(','))
@@ -245,7 +264,7 @@ export default function CreateBattle({ competition }: CreateBattleProps) {
               type="submit"
               colorScheme="blue"
               isLoading={isLoading}
-              disabled={isDisabled}
+              disabled={!wildcardEnded}
             >
               Start
             </Button>
@@ -256,13 +275,17 @@ export default function CreateBattle({ competition }: CreateBattleProps) {
       {!wildcardStarted && (
         <Alert status="error">
           <AlertIcon />
-          <AlertDescription>Wilcard submission not started.</AlertDescription>
+          <AlertDescription>
+            Wilcard submission has not started yet!
+          </AlertDescription>
         </Alert>
       )}
-      {wildcardEnded && (
+      {!wildcardEnded && (
         <Alert status="error">
           <AlertIcon />
-          <AlertDescription>Wilcard submission ended.</AlertDescription>
+          <AlertDescription>
+            Wilcard submission has not ended yet!
+          </AlertDescription>
         </Alert>
       )}
     </Container>

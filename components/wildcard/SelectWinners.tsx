@@ -76,6 +76,8 @@ export default function SelectWinners({
       }
       const addBeatboxersTx = await Moralis.executeFunction(options)
       await addBeatboxersTx.wait()
+      toast.success('Successfully selected winners!')
+      onClose()
     } catch (e) {
       console.log(e)
       toast.error(e.message)

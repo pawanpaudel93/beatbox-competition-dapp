@@ -14,19 +14,23 @@ import Judges from '../../components/judge/Judges'
 import CompetitionInfo from '../../components/competition/CompetitionInfo'
 import { BBX_COMPETITION_ABI } from '../../constants'
 import { ICompetition } from '../../interfaces'
-import { BigNumber } from 'ethers'
 import { useMoralis } from 'react-moralis'
 import Battles from '../../components/battle/Battles'
+import Settings from '../../components/setting/Settings'
 
 const ContractDetail: NextPage = () => {
   const router = useRouter()
-  const { Moralis } = useMoralis()
+  const { user, Moralis } = useMoralis()
   const [competition, setCompetition] = useState<ICompetition>({
     name: '',
     description: '',
     image: '',
-    wildcardStart: BigNumber.from('0'),
-    wildcardEnd: BigNumber.from('0'),
+    competitionState: 0,
+  })
+  const [roles, setRoles] = useState<{ [key: string]: boolean }>({
+    isAdmin: false,
+    isHelper: false,
+    isJudge: false,
   })
   const { contractAddress } = router.query
 
@@ -34,7 +38,10 @@ const ContractDetail: NextPage = () => {
     if (contractAddress) {
       fetchMetaData()
     }
-  }, [contractAddress])
+    if (contractAddress && user?.get('ethAddress')) {
+      fetchRoles()
+    }
+  }, [contractAddress, user?.get('ethAddress')])
 
   const fetchMetaData = async () => {
     const options = {
@@ -47,6 +54,23 @@ const ContractDetail: NextPage = () => {
     setCompetition(metadata as unknown as ICompetition)
   }
 
+  const fetchRoles = async () => {
+    const options = {
+      contractAddress: contractAddress as string,
+      functionName: 'getRoles',
+      abi: BBX_COMPETITION_ABI,
+      params: {
+        _address: user?.get('ethAddress') as string,
+      },
+    }
+    const _roles = (await Moralis.executeFunction(options)) as boolean[]
+    setRoles({
+      isAdmin: _roles[0],
+      isHelper: _roles[1],
+      isJudge: _roles[2],
+    })
+  }
+
   return (
     <Tabs>
       <TabList>
@@ -54,6 +78,7 @@ const ContractDetail: NextPage = () => {
         <Tab>Wildcards</Tab>
         <Tab>Judges</Tab>
         <Tab>Battles</Tab>
+        {roles.isAdmin && <Tab>Settings</Tab>}
       </TabList>
 
       <TabPanels>
@@ -63,14 +88,23 @@ const ContractDetail: NextPage = () => {
           </Center>
         </TabPanel>
         <TabPanel>
-          <Wildcards competition={competition} />
+          <Wildcards competition={competition} isAdmin={roles.isAdmin} />
         </TabPanel>
         <TabPanel>
-          <Judges competition={competition} />
+          <Judges competition={competition} isAdmin={roles.isAdmin} />
         </TabPanel>
         <TabPanel>
-          <Battles competition={competition} />
+          <Battles
+            competition={competition}
+            isJudge={roles.isJudge}
+            isAdmin={roles.isAdmin}
+          />
         </TabPanel>
+        {roles.isAdmin && (
+          <TabPanel>
+            <Settings competition={competition} fetchMetaData={fetchMetaData} />
+          </TabPanel>
+        )}
       </TabPanels>
     </Tabs>
   )

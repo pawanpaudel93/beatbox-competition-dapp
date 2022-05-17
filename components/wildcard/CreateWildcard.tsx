@@ -16,6 +16,7 @@ import Moralis from 'moralis'
 import { useRouter } from 'next/router'
 import { toast } from 'react-toastify'
 import { ICompetition } from '../../interfaces'
+import { CompetitionState } from '../../constants'
 
 interface CreateWildcardProps {
   competition: ICompetition
@@ -29,12 +30,10 @@ export default function CreateWildcard({ competition }: CreateWildcardProps) {
   const { user } = useMoralis()
   const router = useRouter()
   const { contractAddress } = router.query
-
   const wildcardStarted =
-    parseInt(competition.wildcardStart.toString()) * 1000 <=
-    new Date().getTime()
-  const wildcardEnded =
-    parseInt(competition.wildcardEnd.toString()) * 1000 <= new Date().getTime()
+    competition.competitionState >= CompetitionState.WILDCARD
+  const wildcardEnded = competition.competitionState > CompetitionState.WILDCARD
+
   const isDisabled = !wildcardStarted || wildcardEnded
 
   const onSubmit = async (e: FormEvent) => {
@@ -80,7 +79,7 @@ export default function CreateWildcard({ competition }: CreateWildcardProps) {
   return (
     <Container padding={2}>
       <Center>
-        <h1>Create Beatbox Wildcard</h1>
+        <h1>Submit Beatbox Wildcard</h1>
       </Center>
       <form onSubmit={onSubmit}>
         <FormControl padding={3} isRequired>
@@ -110,7 +109,7 @@ export default function CreateWildcard({ competition }: CreateWildcardProps) {
               isLoading={isLoading}
               disabled={isDisabled}
             >
-              Create
+              Submit
             </Button>
             <Button onClick={clearForm}>Cancel</Button>
           </ButtonGroup>

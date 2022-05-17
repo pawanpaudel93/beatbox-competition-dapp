@@ -18,21 +18,27 @@ import {
 } from '@chakra-ui/react'
 import { ChangeEvent, FormEvent, useState } from 'react'
 import { useDisclosure } from '@chakra-ui/react'
-import { IBattle } from '../../interfaces'
-import { BBX_COMPETITION_ABI } from '../../constants'
 import { useMoralis } from 'react-moralis'
 import { toast } from 'react-toastify'
 import { BigNumber } from 'ethers'
+import { IBattle } from '../../interfaces'
+import { BBX_COMPETITION_ABI } from '../../constants'
+import { getCategoryByState } from '../../utils'
 
 export function VoteModal({
   battle,
   contractAddress,
+  isDisabled,
+  isVoted,
 }: {
   battle: IBattle
   contractAddress: string
+  isDisabled: boolean
+  isVoted: boolean
 }) {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { Moralis } = useMoralis()
+  const { user } = useMoralis()
   const beatboxers = battle.name.split(' V/S ')
   const point = {
     originality: 0,
@@ -59,17 +65,24 @@ export function VoteModal({
         functionName: 'voteBattle',
         params: {
           battleId: battle.id,
-          point1: Object.entries(pointOne).reduce((acc, [key, value]) => {
-            acc[key] = BigNumber.from(value.toString())
-            return acc
-          }, {}),
-          point2: Object.entries(pointTwo).reduce((acc, [key, value]) => {
-            acc[key] = BigNumber.from(value.toString())
-            return acc
-          }, {}),
+          point1: {
+            ...Object.entries(pointOne).reduce((acc, [key, value]) => {
+              acc[key] = BigNumber.from(value.toString())
+              return acc
+            }, {}),
+            votedFor: battle.beatboxerOne.beatboxerAddress,
+            votedBy: user?.get('ethAddress'),
+          },
+          point2: {
+            ...Object.entries(pointTwo).reduce((acc, [key, value]) => {
+              acc[key] = BigNumber.from(value.toString())
+              return acc
+            }, {}),
+            votedFor: battle.beatboxerTwo.beatboxerAddress,
+            votedBy: user?.get('ethAddress'),
+          },
         },
       }
-      console.log(options)
       const voteBattleTx = await Moralis.executeFunction(options)
       await voteBattleTx.wait()
       toast.success('Voted Successfully')
@@ -100,8 +113,12 @@ export function VoteModal({
 
   return (
     <>
-      <Button colorScheme="green" onClick={onOpen}>
-        Vote
+      <Button
+        colorScheme="green"
+        onClick={onOpen}
+        isDisabled={isDisabled || isVoted}
+      >
+        {isVoted ? 'Voted' : 'Vote'}
       </Button>
 
       <Modal isOpen={isOpen} onClose={onClose} size="2xl">
@@ -110,7 +127,7 @@ export function VoteModal({
           <ModalHeader>
             Vote {battle.name}
             <Badge ml="1" fontSize="0.8em" colorScheme="green" textColor="red">
-              {battle.category}
+              {getCategoryByState(battle.category)}
             </Badge>
           </ModalHeader>
           <ModalCloseButton />
@@ -317,6 +334,7 @@ export function VoteModal({
                 colorScheme="blue"
                 mr={3}
                 isLoading={isLoading}
+                isDisabled={isDisabled}
               >
                 Vote
               </Button>

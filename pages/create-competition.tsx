@@ -25,9 +25,6 @@ const CreateCompetition: NextPage = () => {
   const [image, setImage] = useState<File>()
   const [clearImage, setClearImage] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const today = new Date().toISOString().split('T')[0]
-  const [wildcardStart, setWildcardStart] = useState(today)
-  const [wildcardEnd, setWildcardEnd] = useState(today)
 
   const { Moralis } = useMoralis()
 
@@ -41,8 +38,6 @@ const CreateCompetition: NextPage = () => {
     setImage(undefined)
     setClearImage(true)
     setIsLoading(false)
-    setWildcardStart(today)
-    setWildcardEnd(today)
   }
 
   const handleImageCallback = (image: File) => {
@@ -64,10 +59,6 @@ const CreateCompetition: NextPage = () => {
     try {
       setIsLoading(true)
       const imageUrl = await uploadFile()
-      const _wildcardStart = Math.floor(
-        new Date(wildcardStart).getTime() / 1000
-      )
-      const _wildcardEnd = Math.floor(new Date(wildcardEnd).getTime() / 1000)
       const options = {
         contractAddress: COMPETITION_FACTORY_ADDRESS,
         functionName: 'createCompetition',
@@ -76,8 +67,6 @@ const CreateCompetition: NextPage = () => {
           name,
           description,
           image: imageUrl,
-          wildcardStart: _wildcardStart,
-          wildcardEnd: _wildcardEnd,
         },
       }
       const competitionTx = await Moralis.executeFunction(options)
@@ -113,28 +102,6 @@ const CreateCompetition: NextPage = () => {
             placeholder="Competition Description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-          />
-        </FormControl>
-
-        <FormControl padding={3} isRequired>
-          <FormLabel htmlFor="wildcard-start">Wildcard Start Date</FormLabel>
-          <Input
-            type="date"
-            id="wildcard-start"
-            placeholder="Wildcard Start Date"
-            value={wildcardStart}
-            onChange={(e) => setWildcardStart(e.target.value)}
-          />
-        </FormControl>
-
-        <FormControl padding={3} isRequired>
-          <FormLabel htmlFor="wildcard-end">Wildcard End Date</FormLabel>
-          <Input
-            type="date"
-            id="wildcard-end"
-            placeholder="Wildcard End Date"
-            value={wildcardEnd}
-            onChange={(e) => setWildcardEnd(e.target.value)}
           />
         </FormControl>
 
