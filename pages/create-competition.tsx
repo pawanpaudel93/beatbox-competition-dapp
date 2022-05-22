@@ -67,6 +67,9 @@ const CreateCompetition: NextPage = () => {
           name,
           description,
           image: imageUrl,
+          chainlinkToken: process.env.NEXT_PUBLIC_CHAINLINK_TOKEN,
+          chainlinkOracle: process.env.NEXT_PUBLIC_CHAINLINK_ORACLE,
+          chainlinkJobId: process.env.NEXT_PUBLIC_CHAINLINK_JOBID,
         },
       }
       const competitionTx = await Moralis.executeFunction(options)

@@ -18,6 +18,9 @@ import { toast } from 'react-toastify'
 import { ethers } from 'ethers'
 import { ICompetition } from '../../interfaces'
 import { BBX_COMPETITION_ABI, CompetitionState } from '../../constants'
+import dayjs from 'dayjs'
+import utc from "dayjs/plugin/utc";
+dayjs.extend(utc)
 
 interface CreateBattleProps {
   competition: ICompetition
@@ -96,6 +99,11 @@ export default function CreateBattle({ competition }: CreateBattleProps) {
     }
   }
 
+  const youtubeUrlToBytes11 = (url: string) => {
+    const videoId = url.split("v=")[1].slice(0, 11).trim()
+    return ethers.utils.formatBytes32String(videoId).slice(0,24)
+  }
+
   useEffect(() => {
     if (contractAddress) {
       fetchBeatboxers()
@@ -119,14 +127,13 @@ export default function CreateBattle({ competition }: CreateBattleProps) {
           category: category,
           beatboxerOneAddress: battleAddresses[0],
           beatboxerTwoAddress: battleAddresses[1],
-          videoUrlOne: videoUrls[0],
-          videoUrlTwo: videoUrls[1],
-          startTime: Math.floor(new Date(battleStart).getTime() / 1000),
-          endTime: Math.floor(new Date(battleEnd).getTime() / 1000),
+          ytVideoIdOne: youtubeUrlToBytes11(videoUrls[0]),
+          ytVideoIdTwo: youtubeUrlToBytes11(videoUrls[1]),
+          startTime: dayjs.utc(battleStart).unix(),
+          endTime: dayjs.utc(battleEnd).unix(),
           winningAmount: ethers.utils.parseEther(winningAmount.toString()),
         },
       }
-
       const battleTx = await Moralis.executeFunction(options)
       await battleTx.wait()
       clearForm()

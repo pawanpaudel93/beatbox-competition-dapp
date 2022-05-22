@@ -29,14 +29,14 @@ export default function SingleBattle({
   isVoted: boolean
 }) {
   const AddressZero = ethers.constants.AddressZero
-  const Video = ({ videoUrl }: { videoUrl: string }) => {
+  const Video = ({ videoId }: { videoId: string }) => {
     return (
       <Box
         borderWidth="1px"
         overflow="hidden"
         as="iframe"
         p={1}
-        src={'https://www.youtube.com/embed/' + videoUrl.split('=').pop()}
+        src={'https://www.youtube.com/embed/' + videoId}
         width="100%"
         allowFullScreen
         sx={{
@@ -82,7 +82,7 @@ export default function SingleBattle({
         bg="blue.300"
       >
         <GridItem w="100%">
-          <Video videoUrl={battle.beatboxerOne.videoUrl} />
+          <Video videoId={battle.beatboxerOne.ytVideoId} />
           <Center>
             <Text fontSize="sm">
               Points: <Tag>{battle.beatboxerOne.score.toString()}</Tag>
@@ -133,7 +133,7 @@ export default function SingleBattle({
         </GridItem>
         <GridItem w="100%">
           <Box display="flex" justifyContent="end">
-            <Video videoUrl={battle.beatboxerTwo.videoUrl} />
+            <Video videoId={battle.beatboxerTwo.ytVideoId} />
           </Box>
           <Center>
             <Text fontSize="sm" justifySelf="center">

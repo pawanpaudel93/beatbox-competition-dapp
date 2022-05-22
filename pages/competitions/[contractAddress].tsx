@@ -69,6 +69,7 @@ const ContractDetail: NextPage = () => {
       isHelper: _roles[1],
       isJudge: _roles[2],
     })
+    console.log(roles)
   }
 
   return (

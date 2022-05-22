@@ -27,11 +27,13 @@ export interface IBattle {
     beatboxerOne: {
         score: BigNumber
         beatboxerAddress: string
-        videoUrl: string
+        ytVideoId: string
+        likeCount: BigNumber
     }
     beatboxerTwo: {
         score: BigNumber
         beatboxerAddress: string
-        videoUrl: string
+        ytVideoId: string
+        likeCount: BigNumber
     }
 }

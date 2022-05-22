@@ -47,7 +47,7 @@ export default function CompetitionInfo({ competition }: CompetitionInfoProps) {
         abi: BBX_COMPETITION_ABI,
         functionName: 'setDescription',
         params: {
-          _description: description,
+          description: description,
         },
       }
       const setDescriptionTx = await Moralis.executeFunction(options)

@@ -5,7 +5,7 @@ import { useMoralis } from 'react-moralis'
 import { BBX_COMPETITION_ABI } from '../../constants'
 import { IBattle } from '../../interfaces'
 import SingleBattle from './SingleBattle'
-
+import {ethers} from "ethers"
 interface AllBattlesProps {
   isJudge: boolean
   votedBattles: { [key: number]: boolean }
@@ -16,6 +16,10 @@ export default function AllBattles({ isJudge, votedBattles }: AllBattlesProps) {
   const [battles, setBattles] = useState<IBattle[]>([])
   const { contractAddress } = router.query
   const { Moralis } = useMoralis()
+
+  const bytes11ToString = (videoId: string) => {
+    return ethers.utils.parseBytes32String(videoId + "0".repeat(42))
+  }
 
   const fetchAllBattles = async () => {
     const options = {
@@ -39,12 +43,14 @@ export default function AllBattles({ isJudge, votedBattles }: AllBattlesProps) {
         beatboxerOne: {
           score: battle.beatboxerOne.score,
           beatboxerAddress: battle.beatboxerOne.beatboxerAddress,
-          videoUrl: battle.beatboxerOne.videoUrl,
+          ytVideoId: bytes11ToString(battle.beatboxerOne.ytVideoId),
+          likeCount: battle.beatboxerOne.likeCount,
         },
         beatboxerTwo: {
           score: battle.beatboxerTwo.score,
           beatboxerAddress: battle.beatboxerTwo.beatboxerAddress,
-          videoUrl: battle.beatboxerTwo.videoUrl,
+          ytVideoId: bytes11ToString(battle.beatboxerTwo.ytVideoId),
+          likeCount: battle.beatboxerTwo.likeCount,
         },
       })
     }
