@@ -71,7 +71,7 @@ export default function SelectWinners({
         abi: BBX_COMPETITION_ABI,
         params: {
           beatboxerAddresses: addresses,
-          names
+          names,
         },
       }
       const addBeatboxersTx = await Moralis.executeFunction(options)

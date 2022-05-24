@@ -23,7 +23,7 @@ export default function Judges({ competition, isAdmin }: WildcardsProps) {
           </TabPanel>
         )}
         <TabPanel>
-          <AllJudges />
+          <AllJudges isAdmin={isAdmin} />
         </TabPanel>
       </TabPanels>
     </Tabs>

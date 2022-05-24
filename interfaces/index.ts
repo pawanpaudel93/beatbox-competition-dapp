@@ -3,7 +3,7 @@ import { BigNumber } from "ethers"
 export interface ICompetition {
     name: string
     description: string
-    image: string
+    imageURI: string
     contractAddress?: string
     creator?: string
     competitionId?: BigNumber
@@ -16,22 +16,22 @@ export interface IBeatboxer {
 }
 
 export interface IBattle {
-    id: BigNumber
+    id: number
     name: string
-    category: number
+    state: number
     winningAmount: BigNumber
     winnerAddress: string
     startTime: BigNumber
     endTime: BigNumber
     totalVotes: BigNumber
     beatboxerOne: {
-        score: BigNumber
+        score: number
         beatboxerAddress: string
         ytVideoId: string
         likeCount: BigNumber
     }
     beatboxerTwo: {
-        score: BigNumber
+        score: number
         beatboxerAddress: string
         ytVideoId: string
         likeCount: BigNumber

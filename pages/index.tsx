@@ -3,6 +3,7 @@ import { useMoralisQuery } from 'react-moralis'
 import { Grid } from '@chakra-ui/react'
 import Competition from '../components/competition/Competition'
 import { ICompetition } from '../interfaces'
+import { ethers } from 'ethers'
 
 const Home: NextPage = () => {
   const { data, isFetching, isLoading, error } = useMoralisQuery(
@@ -17,13 +18,12 @@ const Home: NextPage = () => {
 
   const competitions: ICompetition[] = data?.map((competition) => ({
     competitionId: competition.attributes.competitionId,
-    name: competition.attributes.name,
+    name: ethers.utils.parseBytes32String(competition.attributes.name),
     description: competition.attributes.description,
-    image: competition.attributes.image,
-    wildcardStart: competition.attributes.wildcardStart,
+    imageURI: competition.attributes.imageURI,
     contractAddress: competition.attributes.contractAddress,
     creator: competition.attributes.creator,
-    wildcardEnd: competition.attributes.wildcardEnd,
+    competitionState: 0,
   }))
 
   if (isLoading) {
@@ -36,7 +36,14 @@ const Home: NextPage = () => {
     return <div>No competitions found</div>
   }
   return (
-    <Grid templateColumns="repeat(5, 1fr)" gap={6}>
+    <Grid
+      templateColumns={{
+        sm: 'repeat(1, 1fr)',
+        md: 'repeat(3, 1fr)',
+        lg: 'repeat(5, 1fr)',
+      }}
+      gap={6}
+    >
       {competitions?.map((competition, index) => (
         <Competition key={index} competition={competition} />
       ))}

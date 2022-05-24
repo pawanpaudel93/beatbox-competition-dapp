@@ -62,7 +62,7 @@ export default function Dropzone({
   )
 
   return (
-    <Container>
+    <Container padding={3}>
       <Center
         p={10}
         cursor="pointer"

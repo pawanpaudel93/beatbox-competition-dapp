@@ -71,7 +71,7 @@ export default function SingleBattle({
     <HStack align="center" p={2}>
       <Tag colorScheme="blue" variant="outline">
         <TagLabel fontSize="xl" p={1}>
-          {battle.id.add(1).toString()}
+          {battle.id + 1}
         </TagLabel>
       </Tag>
       <Grid
@@ -101,7 +101,7 @@ export default function SingleBattle({
                     colorScheme="green"
                     textColor="red"
                   >
-                    {getCategoryByState(battle.category)}
+                    {getCategoryByState(battle.state)}
                   </Badge>
                 </Heading>
               </Box>

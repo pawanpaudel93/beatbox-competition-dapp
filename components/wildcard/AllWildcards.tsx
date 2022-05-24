@@ -20,7 +20,14 @@ export default function AllWildcards({ wildcards }: AllWildcardsProps) {
   }
 
   return (
-    <Grid templateColumns="repeat(5, 1fr)" gap={6}>
+    <Grid
+      templateColumns={{
+        sm: 'repeat(1, 1fr)',
+        md: 'repeat(3, 1fr)',
+        lg: 'repeat(5, 1fr)',
+      }}
+      gap={6}
+    >
       {wildcards.data.length > 0 ? (
         wildcards.data.map((wildcard, index) => (
           <Box
@@ -33,8 +40,10 @@ export default function AllWildcards({ wildcards }: AllWildcardsProps) {
             <Box
               as="iframe"
               src={
-                'https://www.youtube.com/embed/' +
-                wildcard.attributes.videoUrl.split('=').pop()
+                wildcard.attributes.videoUrl.indexOf('youtube') > 0
+                  ? 'https://www.youtube.com/embed/' +
+                    wildcard.attributes.videoUrl.split('=').pop()
+                  : wildcard.attributes.videoUrl
               }
               width="100%"
               allowFullScreen
@@ -52,7 +61,7 @@ export default function AllWildcards({ wildcards }: AllWildcardsProps) {
                   fontSize="xs"
                   textTransform="uppercase"
                 >
-                  {wildcard.attributes.name}
+                  Wildcard by: {wildcard.attributes.name}
                 </Box>
               </Box>
             </Box>

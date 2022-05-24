@@ -129,7 +129,7 @@ export default function CompetitionInfo({ competition }: CompetitionInfoProps) {
           <Image
             rounded={'md'}
             alt={competition.name}
-            src={competition.image}
+            src={competition.imageURI}
             objectFit={'cover'}
             fit={'cover'}
             align={'center'}

@@ -15,7 +15,7 @@ import { useMoralis } from 'react-moralis'
 import { BBX_COMPETITION_ABI } from '../../constants'
 import { toast } from 'react-toastify'
 
-export default function AllJudges() {
+export default function AllJudges({ isAdmin }: { isAdmin: boolean }) {
   const router = useRouter()
   const { contractAddress } = router.query
   const { Moralis } = useMoralis()
@@ -76,21 +76,23 @@ export default function AllJudges() {
           <Thead>
             <Tr>
               <Th>Name</Th>
-              <Th>Actions</Th>
+              {isAdmin && <Th>Actions</Th>}
             </Tr>
           </Thead>
           <Tbody>
             {judges.map((judge, index) => (
               <Tr key={index}>
                 <Td>{judge.attributes.name}</Td>
-                <Td>
-                  <DeleteConfirm
-                    args={{ judgeAddress: judge.attributes.userAddress }}
-                    onConfirm={removeJudge}
-                    buttonName="Remove"
-                    buttonColor="red"
-                  />
-                </Td>
+                {isAdmin && (
+                  <Td>
+                    <DeleteConfirm
+                      args={{ judgeAddress: judge.attributes.userAddress }}
+                      onConfirm={removeJudge}
+                      buttonName="Remove"
+                      buttonColor="red"
+                    />
+                  </Td>
+                )}
               </Tr>
             ))}
           </Tbody>

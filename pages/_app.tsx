@@ -19,7 +19,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       <AuthenticationProvider>
         <ChakraProvider>
           <NavBar />
-          <div className="px-6 py-2 min-h-screen">
+          <div className="md:px-6 py-2 min-h-screen">
             <Component {...pageProps} />
             <ToastContainer />
           </div>

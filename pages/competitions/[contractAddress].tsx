@@ -9,6 +9,7 @@ import {
   TabPanel,
   Center,
 } from '@chakra-ui/react'
+import { ethers } from 'ethers'
 import Wildcards from '../../components/wildcard/Wildcards'
 import Judges from '../../components/judge/Judges'
 import CompetitionInfo from '../../components/competition/CompetitionInfo'
@@ -17,6 +18,7 @@ import { ICompetition } from '../../interfaces'
 import { useMoralis } from 'react-moralis'
 import Battles from '../../components/battle/Battles'
 import Settings from '../../components/setting/Settings'
+import Updates from '../../components/updates/Updates'
 
 const ContractDetail: NextPage = () => {
   const router = useRouter()
@@ -24,7 +26,7 @@ const ContractDetail: NextPage = () => {
   const [competition, setCompetition] = useState<ICompetition>({
     name: '',
     description: '',
-    image: '',
+    imageURI: '',
     competitionState: 0,
   })
   const [roles, setRoles] = useState<{ [key: string]: boolean }>({
@@ -44,14 +46,25 @@ const ContractDetail: NextPage = () => {
   }, [contractAddress, user?.get('ethAddress')])
 
   const fetchMetaData = async () => {
-    const options = {
-      contractAddress: contractAddress as string,
-      functionName: 'metaData',
-      abi: BBX_COMPETITION_ABI,
-      params: {},
+    try {
+      const options = {
+        contractAddress: contractAddress as string,
+        functionName: 'metaData',
+        abi: BBX_COMPETITION_ABI,
+        params: {},
+      }
+      const metadata = (await Moralis.executeFunction(
+        options
+      )) as unknown as ICompetition
+      setCompetition({
+        name: ethers.utils.parseBytes32String(metadata.name),
+        description: metadata.description,
+        imageURI: metadata.imageURI,
+        competitionState: metadata.competitionState,
+      })
+    } catch (e) {
+      console.log(e)
     }
-    const metadata = await Moralis.executeFunction(options)
-    setCompetition(metadata as unknown as ICompetition)
   }
 
   const fetchRoles = async () => {
@@ -79,6 +92,7 @@ const ContractDetail: NextPage = () => {
         <Tab>Wildcards</Tab>
         <Tab>Judges</Tab>
         <Tab>Battles</Tab>
+        <Tab>Updates</Tab>
         {roles.isAdmin && <Tab>Settings</Tab>}
       </TabList>
 
@@ -100,6 +114,9 @@ const ContractDetail: NextPage = () => {
             isJudge={roles.isJudge}
             isAdmin={roles.isAdmin}
           />
+        </TabPanel>
+        <TabPanel>
+          <Updates />
         </TabPanel>
         {roles.isAdmin && (
           <TabPanel>

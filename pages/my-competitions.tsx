@@ -1,46 +1,50 @@
 import type { NextPage } from 'next'
-import { useEffect, useState } from 'react'
 import { Grid } from '@chakra-ui/react'
-import {
-  COMPETITION_FACTORY_ADDRESS,
-  COMPETITION_FACTORY_ABI,
-} from '../constants'
 import Competition from '../components/competition/Competition'
 import { ICompetition } from '../interfaces'
-import { useMoralis } from 'react-moralis'
+import { useMoralisQuery, useMoralis } from 'react-moralis'
+import { ethers } from 'ethers'
 
 const MyCompetitions: NextPage = () => {
-  const [competitions, setCompetitions] = useState<ICompetition[]>()
-  const [isLoading, setIsLoading] = useState(true)
-  const { user, Moralis, isWeb3Enabled } = useMoralis()
-
-  useEffect(() => {
-    if (isWeb3Enabled) {
-      getCompetitions()
+  const { user } = useMoralis()
+  const { data, isFetching, isLoading, error } = useMoralisQuery(
+    'Competition',
+    (query) => query && query.equalTo('creator', user?.get('ethAddress')),
+    [user?.get('ethAddress')],
+    {
+      autoFetch: true,
+      live: true,
     }
-  }, [isWeb3Enabled])
+  )
 
-  const getCompetitions = async () => {
-    const options = {
-      contractAddress: COMPETITION_FACTORY_ADDRESS,
-      abi: COMPETITION_FACTORY_ABI,
-      functionName: 'getCompetitionsByCreator',
-      params: {
-        creator: user?.get('ethAddress'),
-      },
-    }
-    const _competitions = await Moralis.executeFunction(options)
-    setCompetitions(_competitions as ICompetition[])
-    setIsLoading(false)
-  }
+  const competitions: ICompetition[] = data?.map((competition) => ({
+    competitionId: competition.attributes.competitionId,
+    name: ethers.utils.parseBytes32String(competition.attributes.name),
+    description: competition.attributes.description,
+    imageURI: competition.attributes.imageURI,
+    contractAddress: competition.attributes.contractAddress,
+    creator: competition.attributes.creator,
+    competitionState: 0,
+  }))
 
   if (isLoading) {
     return <div>Loading my competitions...</div>
-  } else if (competitions?.length === 0) {
-    return <div>No competitions found</div>
+  } else if (isFetching) {
+    return <div>Fetching my competitions...</div>
+  } else if (error) {
+    return <div>Error fetching my competitions: {error.message}</div>
+  } else if (competitions.length === 0) {
+    return <div>No my competitions found!</div>
   }
   return (
-    <Grid templateColumns="repeat(5, 1fr)" gap={6}>
+    <Grid
+      templateColumns={{
+        sm: 'repeat(1, 1fr)',
+        md: 'repeat(3, 1fr)',
+        lg: 'repeat(5, 1fr)',
+      }}
+      gap={6}
+    >
       {competitions?.map((competition, index) => (
         <Competition key={index} competition={competition} />
       ))}

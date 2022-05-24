@@ -1,7 +1,15 @@
-import { Box, Grid } from '@chakra-ui/react'
+import {
+  Box,
+  Heading,
+  HStack,
+  StackDivider,
+  VStack,
+  Text,
+} from '@chakra-ui/react'
 import { useRouter } from 'next/router'
 import SelectWinners from './SelectWinners'
 import Moralis from 'moralis'
+import dayjs from 'dayjs'
 
 interface WildcardWinnersProps {
   allWildcards: Moralis.Object<Moralis.Attributes>[]
@@ -25,48 +33,60 @@ export default function WildcardWinners({
           contractAddress={contractAddress as string}
         />
       )}
-      <Grid templateColumns="repeat(5, 1fr)" gap={6}>
-        {wildcards.length > 0 ? (
-          wildcards.map((wildcard, index) => (
-            <Box
-              maxW="sm"
-              borderWidth="1px"
-              borderRadius="lg"
-              overflow="hidden"
-              key={index}
-            >
-              <Box
-                as="iframe"
-                src={
-                  'https://www.youtube.com/embed/' +
-                  wildcard.attributes.videoUrl.split('=').pop()
-                }
-                width="100%"
-                allowFullScreen
-                sx={{
-                  aspectRatio: '16/9',
-                }}
-              />
-
-              <Box p="6">
-                <Box display="flex" alignItems="baseline">
-                  <Box
-                    color="gray.500"
-                    fontWeight="semibold"
-                    letterSpacing="wide"
-                    fontSize="xs"
-                    textTransform="uppercase"
-                  >
-                    {wildcard.attributes.name}
+      {wildcards.length > 0 ? (
+        <VStack
+          padding={3}
+          divider={<StackDivider borderColor="gray.200" />}
+          spacing={4}
+          align="stretch"
+        >
+          {wildcards.map((wildcard, index) => (
+            <HStack spacing={3} key={index}>
+              <Box fontWeight="bold">{index + 1})</Box>
+              <Box width="100%" p={5} shadow="md" borderWidth="1px">
+                <HStack spacing={3}>
+                  <Box width="95%">
+                    <Heading fontSize="xl">{wildcard.attributes.name}</Heading>
+                    <HStack spacing={6}>
+                      <Text fontSize="sm" colorScheme="gray">
+                        Submitted:{' '}
+                        {dayjs
+                          .utc(wildcard.attributes.createdAt)
+                          .format('MMM D, YYYY h:mm A')}
+                      </Text>
+                      <Text fontSize="sm" colorScheme="gray">
+                        Updated:{' '}
+                        {dayjs
+                          .utc(wildcard.attributes.updatedAt)
+                          .format('MMM D, YYYY h:mm A')}
+                      </Text>
+                    </HStack>
                   </Box>
-                </Box>
+                  <Box
+                    as="iframe"
+                    src={
+                      wildcard.attributes.videoUrl.indexOf('youtube') > 0
+                        ? 'https://www.youtube.com/embed/' +
+                          wildcard.attributes.videoUrl.split('=').pop()
+                        : wildcard.attributes.videoUrl
+                    }
+                    width="20%"
+                    height="20%"
+                    allowFullScreen
+                    sx={{
+                      aspectRatio: '16/9',
+                    }}
+                  />
+                </HStack>
               </Box>
-            </Box>
-          ))
-        ) : (
-          <Box>No selected wildcards yet</Box>
-        )}
-      </Grid>
+            </HStack>
+          ))}
+        </VStack>
+      ) : (
+        <Box>
+          <Heading>No Winners Yet</Heading>
+        </Box>
+      )}
     </>
   )
 }

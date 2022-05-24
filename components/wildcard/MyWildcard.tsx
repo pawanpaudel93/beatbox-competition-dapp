@@ -55,8 +55,10 @@ export default function MyWilcard({
             <Box
               as="iframe"
               src={
-                'https://www.youtube.com/embed/' +
-                wildcard.attributes.videoUrl.split('=').pop()
+                wildcard.attributes.videoUrl.indexOf('youtube') > 0
+                  ? 'https://www.youtube.com/embed/' +
+                    wildcard.attributes.videoUrl.split('=').pop()
+                  : wildcard.attributes.videoUrl
               }
               width="100%"
               allowFullScreen

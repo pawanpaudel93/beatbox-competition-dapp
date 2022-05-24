@@ -14,13 +14,16 @@ import {
   Button,
   FormLabel,
   FormControl,
-  Input,
+  NumberDecrementStepper,
+  NumberIncrementStepper,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
 } from '@chakra-ui/react'
-import { ChangeEvent, FormEvent, useState } from 'react'
+import { FormEvent, useState } from 'react'
 import { useDisclosure } from '@chakra-ui/react'
 import { useMoralis } from 'react-moralis'
 import { toast } from 'react-toastify'
-import { BigNumber } from 'ethers'
 import { IBattle } from '../../interfaces'
 import { BBX_COMPETITION_ABI } from '../../constants'
 import { getCategoryByState } from '../../utils'
@@ -66,18 +69,12 @@ export function VoteModal({
         params: {
           battleId: battle.id,
           point1: {
-            ...Object.entries(pointOne).reduce((acc, [key, value]) => {
-              acc[key] = BigNumber.from(value.toString())
-              return acc
-            }, {}),
+            ...pointOne,
             votedFor: battle.beatboxerOne.beatboxerAddress,
             votedBy: user?.get('ethAddress'),
           },
           point2: {
-            ...Object.entries(pointTwo).reduce((acc, [key, value]) => {
-              acc[key] = BigNumber.from(value.toString())
-              return acc
-            }, {}),
+            ...pointTwo,
             votedFor: battle.beatboxerTwo.beatboxerAddress,
             votedBy: user?.get('ethAddress'),
           },
@@ -91,24 +88,6 @@ export function VoteModal({
       toast.error(error.message)
     }
     setIsLoading(false)
-  }
-
-  const onChange = (e: ChangeEvent<HTMLInputElement>, point = 'one') => {
-    if (point === 'one') {
-      setPointOne({
-        ...pointOne,
-        [e.target.name]: Number(
-          e.target.validity.valid ? e.target.value : pointOne[e.target.name]
-        ),
-      })
-    } else {
-      setPointTwo({
-        ...pointTwo,
-        [e.target.name]: Number(
-          e.target.validity.valid ? e.target.value : pointTwo[e.target.name]
-        ),
-      })
-    }
   }
 
   return (
@@ -127,7 +106,7 @@ export function VoteModal({
           <ModalHeader>
             Vote {battle.name}
             <Badge ml="1" fontSize="0.8em" colorScheme="green" textColor="red">
-              {getCategoryByState(battle.category)}
+              {getCategoryByState(battle.state)}
             </Badge>
           </ModalHeader>
           <ModalCloseButton />
@@ -140,86 +119,149 @@ export function VoteModal({
                   </Heading>
                   <FormControl>
                     <FormLabel>Originality</FormLabel>
-                    <Input
-                      type="text"
-                      pattern="[0-1]*"
-                      value={pointOne.originality}
-                      placeholder="Originality Point"
-                      name="originality"
-                      onChange={onChange}
-                    />
+                    <NumberInput
+                      defaultValue={pointOne.originality}
+                      min={0}
+                      max={1}
+                      onChange={(valueString: string) =>
+                        setPointOne({
+                          ...pointOne,
+                          originality: parseInt(valueString),
+                        })
+                      }
+                    >
+                      <NumberInputField />
+                      <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                      </NumberInputStepper>
+                    </NumberInput>
                   </FormControl>
 
                   <FormControl mt={2}>
                     <FormLabel>Pitch & Timing</FormLabel>
-                    <Input
-                      type="text"
-                      pattern="[0-1]*"
-                      placeholder="Pitch & Timing Point"
-                      value={pointOne.pitchAndTiming}
-                      name="pitchAndTiming"
-                      onChange={onChange}
-                    />
+                    <NumberInput
+                      defaultValue={pointOne.pitchAndTiming}
+                      min={0}
+                      max={1}
+                      onChange={(valueString: string) =>
+                        setPointOne({
+                          ...pointOne,
+                          originality: parseInt(valueString),
+                        })
+                      }
+                    >
+                      <NumberInputField />
+                      <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                      </NumberInputStepper>
+                    </NumberInput>
                   </FormControl>
 
                   <FormControl mt={2}>
                     <FormLabel>Enjoyment of Listening</FormLabel>
-                    <Input
-                      type="text"
-                      pattern="[0-1]*"
-                      placeholder="Enjoyment of Listening Point"
-                      value={pointOne.enjoymentOfListening}
-                      name="enjoymentOfListening"
-                      onChange={onChange}
-                    />
+                    <NumberInput
+                      defaultValue={pointOne.enjoymentOfListening}
+                      min={0}
+                      max={1}
+                      onChange={(valueString: string) =>
+                        setPointOne({
+                          ...pointOne,
+                          enjoymentOfListening: parseInt(valueString),
+                        })
+                      }
+                    >
+                      <NumberInputField />
+                      <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                      </NumberInputStepper>
+                    </NumberInput>
                   </FormControl>
 
                   <FormControl mt={2}>
                     <FormLabel>Video</FormLabel>
-                    <Input
-                      type="text"
-                      pattern="[0-1]*"
-                      placeholder="Video Point"
-                      value={pointOne.video}
-                      name="video"
-                      onChange={onChange}
-                    />
+                    <NumberInput
+                      defaultValue={pointOne.video}
+                      min={0}
+                      max={1}
+                      onChange={(valueString: string) =>
+                        setPointOne({
+                          ...pointOne,
+                          video: parseInt(valueString),
+                        })
+                      }
+                    >
+                      <NumberInputField />
+                      <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                      </NumberInputStepper>
+                    </NumberInput>
                   </FormControl>
 
                   <FormControl mt={2}>
                     <FormLabel>Audio</FormLabel>
-                    <Input
-                      type="text"
-                      pattern="[0-1]*"
-                      placeholder="Audio Point"
-                      value={pointOne.audio}
-                      name="audio"
-                      onChange={onChange}
-                    />
+                    <NumberInput
+                      defaultValue={pointOne.audio}
+                      min={0}
+                      max={1}
+                      onChange={(valueString: string) =>
+                        setPointOne({
+                          ...pointOne,
+                          audio: parseInt(valueString),
+                        })
+                      }
+                    >
+                      <NumberInputField />
+                      <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                      </NumberInputStepper>
+                    </NumberInput>
                   </FormControl>
 
                   <FormControl mt={2}>
                     <FormLabel>Battle</FormLabel>
-                    <Input
-                      type="text"
-                      pattern="[0-1]*"
-                      placeholder="Battle Point"
-                      value={pointOne.battle}
-                      name="battle"
-                      onChange={onChange}
-                    />
+                    <NumberInput
+                      defaultValue={pointOne.battle}
+                      min={0}
+                      max={1}
+                      onChange={(valueString: string) =>
+                        setPointOne({
+                          ...pointOne,
+                          battle: parseInt(valueString),
+                        })
+                      }
+                    >
+                      <NumberInputField />
+                      <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                      </NumberInputStepper>
+                    </NumberInput>
                   </FormControl>
 
                   <FormControl mt={2}>
                     <FormLabel>Extra Point</FormLabel>
-                    <Input
-                      type="text"
-                      pattern="[0-1]*"
-                      placeholder="Extra Point"
-                      value={pointOne.extraPoint}
-                      name="extraPoint"
-                      onChange={onChange}
-                    />
+                    <NumberInput
+                      defaultValue={pointOne.extraPoint}
+                      min={0}
+                      max={1}
+                      onChange={(valueString: string) =>
+                        setPointOne({
+                          ...pointOne,
+                          extraPoint: parseInt(valueString),
+                        })
+                      }
+                    >
+                      <NumberInputField />
+                      <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                      </NumberInputStepper>
+                    </NumberInput>
                   </FormControl>
                 </Box>
                 <Divider orientation="vertical" />
@@ -229,100 +271,149 @@ export function VoteModal({
                   </Heading>
                   <FormControl>
                     <FormLabel>Originality</FormLabel>
-                    <Input
-                      type="text"
-                      pattern="[0-1]*"
-                      value={pointTwo.originality}
-                      placeholder="Originality Point"
-                      name="originality"
-                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                        onChange(e, 'two')
+                    <NumberInput
+                      defaultValue={pointTwo.originality}
+                      min={0}
+                      max={1}
+                      onChange={(valueString: string) =>
+                        setPointTwo({
+                          ...pointTwo,
+                          originality: parseInt(valueString),
+                        })
                       }
-                    />
+                    >
+                      <NumberInputField />
+                      <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                      </NumberInputStepper>
+                    </NumberInput>
                   </FormControl>
 
                   <FormControl mt={2}>
                     <FormLabel>Pitch & Timing</FormLabel>
-                    <Input
-                      type="text"
-                      pattern="[0-1]*"
-                      placeholder="Pitch & Timing Point"
-                      value={pointTwo.pitchAndTiming}
-                      name="pitchAndTiming"
-                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                        onChange(e, 'two')
+                    <NumberInput
+                      defaultValue={pointTwo.pitchAndTiming}
+                      min={0}
+                      max={1}
+                      onChange={(valueString: string) =>
+                        setPointTwo({
+                          ...pointTwo,
+                          pitchAndTiming: parseInt(valueString),
+                        })
                       }
-                    />
+                    >
+                      <NumberInputField />
+                      <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                      </NumberInputStepper>
+                    </NumberInput>
                   </FormControl>
 
                   <FormControl mt={2}>
                     <FormLabel>Enjoyment of Listening</FormLabel>
-                    <Input
-                      type="text"
-                      pattern="[0-1]*"
-                      placeholder="Enjoyment of Listening Point"
-                      value={pointTwo.enjoymentOfListening}
-                      name="enjoymentOfListening"
-                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                        onChange(e, 'two')
+                    <NumberInput
+                      defaultValue={pointTwo.enjoymentOfListening}
+                      min={0}
+                      max={1}
+                      onChange={(valueString: string) =>
+                        setPointTwo({
+                          ...pointTwo,
+                          enjoymentOfListening: parseInt(valueString),
+                        })
                       }
-                    />
+                    >
+                      <NumberInputField />
+                      <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                      </NumberInputStepper>
+                    </NumberInput>
                   </FormControl>
 
                   <FormControl mt={2}>
                     <FormLabel>Video</FormLabel>
-                    <Input
-                      type="text"
-                      pattern="[0-1]*"
-                      placeholder="Video Point"
-                      value={pointTwo.video}
-                      name="video"
-                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                        onChange(e, 'two')
+                    <NumberInput
+                      defaultValue={pointTwo.video}
+                      min={0}
+                      max={1}
+                      onChange={(valueString: string) =>
+                        setPointTwo({
+                          ...pointTwo,
+                          video: parseInt(valueString),
+                        })
                       }
-                    />
+                    >
+                      <NumberInputField />
+                      <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                      </NumberInputStepper>
+                    </NumberInput>
                   </FormControl>
 
                   <FormControl mt={2}>
                     <FormLabel>Audio</FormLabel>
-                    <Input
-                      type="text"
-                      pattern="[0-1]*"
-                      placeholder="Audio Point"
-                      value={pointTwo.audio}
-                      name="audio"
-                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                        onChange(e, 'two')
+                    <NumberInput
+                      defaultValue={pointTwo.audio}
+                      min={0}
+                      max={1}
+                      onChange={(valueString: string) =>
+                        setPointTwo({
+                          ...pointTwo,
+                          audio: parseInt(valueString),
+                        })
                       }
-                    />
+                    >
+                      <NumberInputField />
+                      <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                      </NumberInputStepper>
+                    </NumberInput>
                   </FormControl>
 
                   <FormControl mt={2}>
                     <FormLabel>Battle</FormLabel>
-                    <Input
-                      type="text"
-                      pattern="[0-1]*"
-                      placeholder="Battle Point"
-                      value={pointTwo.battle}
-                      name="battle"
-                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                        onChange(e, 'two')
+                    <NumberInput
+                      defaultValue={pointTwo.battle}
+                      min={0}
+                      max={1}
+                      onChange={(valueString: string) =>
+                        setPointTwo({
+                          ...pointTwo,
+                          battle: parseInt(valueString),
+                        })
                       }
-                    />
+                    >
+                      <NumberInputField />
+                      <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                      </NumberInputStepper>
+                    </NumberInput>
                   </FormControl>
 
                   <FormControl mt={2}>
                     <FormLabel>Extra Point</FormLabel>
-                    <Input
-                      type="text"
-                      pattern="[0-1]*"
-                      placeholder="Extra Point"
-                      value={pointTwo.extraPoint}
-                      name="extraPoint"
-                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                        onChange(e, 'two')
+                    <NumberInput
+                      defaultValue={pointTwo.extraPoint}
+                      min={0}
+                      max={1}
+                      onChange={(valueString: string) =>
+                        setPointTwo({
+                          ...pointTwo,
+                          extraPoint: parseInt(valueString),
+                        })
                       }
-                    />
+                    >
+                      <NumberInputField />
+                      <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                      </NumberInputStepper>
+                    </NumberInput>
                   </FormControl>
                 </Box>
               </HStack>

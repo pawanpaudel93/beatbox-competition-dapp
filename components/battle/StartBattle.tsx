@@ -19,7 +19,7 @@ import { ethers } from 'ethers'
 import { ICompetition } from '../../interfaces'
 import { BBX_COMPETITION_ABI, CompetitionState } from '../../constants'
 import dayjs from 'dayjs'
-import utc from "dayjs/plugin/utc";
+import utc from 'dayjs/plugin/utc'
 dayjs.extend(utc)
 
 interface CreateBattleProps {
@@ -27,15 +27,15 @@ interface CreateBattleProps {
 }
 
 interface IBattle {
-  addresses: string[]
-  names: string[]
+  id: number
   name: string
+  beatboxerOne: string
+  beatboxerTwo: string
 }
 
 interface IBeatboxer {
   name: string
   beatboxerAddress: string
-  latestScore: number
 }
 
 export default function CreateBattle({ competition }: CreateBattleProps) {
@@ -47,12 +47,16 @@ export default function CreateBattle({ competition }: CreateBattleProps) {
     .slice(0, 2)
     .join(':')
   const [name, setName] = useState('')
-  const [category, setCategory] = useState(0)
+  const [battle, setBattle] = useState<IBattle>({
+    id: 0,
+    name: '',
+    beatboxerOne: '',
+    beatboxerTwo: '',
+  })
+  const [state, setCategory] = useState(0)
   const [winningAmount, setWinningAmount] = useState(0)
   const [battleStart, setBattleStart] = useState(today)
   const [battleEnd, setBattleEnd] = useState(today)
-  const [battleAddresses, setBattleAddresses] = useState<string[]>([])
-  const [names, setNames] = useState<string[]>([])
   const [videoUrls, setVideoUrls] = useState<string[]>(['', ''])
   const [battles, setBattles] = useState<IBattle[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -60,53 +64,46 @@ export default function CreateBattle({ competition }: CreateBattleProps) {
   const router = useRouter()
   const { contractAddress } = router.query
   const battleCategory = [
-    ['Top 16', 2],
-    ['Top 8', 3],
-    ['Semi Final', 4],
-    ['Final', 5],
+    ['Top 16', 3],
+    ['Top 8', 4],
+    ['Semi Final', 5],
+    ['Final', 6],
   ]
 
-  const fetchBeatboxers = async () => {
+  const fetchBattles = async () => {
     try {
       const options = {
         contractAddress: contractAddress as string,
         abi: BBX_COMPETITION_ABI,
-        functionName: 'getCurrentBeatboxers',
+        functionName: 'getCurrentBattles',
         params: {},
       }
-      let beatboxers = (await Moralis.executeFunction(options)) as IBeatboxer[]
-      beatboxers = beatboxers.map((beatboxer) => ({
-        name: beatboxer.name,
-        beatboxerAddress: beatboxer.beatboxerAddress,
-        latestScore: beatboxer.latestScore,
-      }))
-      beatboxers.sort((a, b) => b.latestScore - a.latestScore)
-      const _battles: IBattle[] = []
-      for (let i = 0; i < beatboxers.length / 2; i++) {
-        const opponentIndex = beatboxers.length - 1 - i
-        _battles.push({
-          name: `${beatboxers[i].name} V/S ${beatboxers[opponentIndex].name}`,
-          names: [beatboxers[i].name, beatboxers[opponentIndex].name],
-          addresses: [
-            beatboxers[i].beatboxerAddress as string,
-            beatboxers[opponentIndex].beatboxerAddress as string,
-          ],
-        })
-      }
-      setBattles(_battles)
+      const _battles = (await Moralis.executeFunction(
+        options
+      )) as Array<IBeatboxer>[]
+
+      setBattles(
+        _battles.map((beatboxers, index) => ({
+          id: index,
+          name: `${beatboxers[0].name} vs ${beatboxers[1].name}`,
+          beatboxerOne: beatboxers[0].name,
+          beatboxerTwo: beatboxers[1].name,
+        }))
+      )
+      // console.log(battles)
     } catch (error) {
       console.error(error)
     }
   }
 
   const youtubeUrlToBytes11 = (url: string) => {
-    const videoId = url.split("v=")[1].slice(0, 11).trim()
-    return ethers.utils.formatBytes32String(videoId).slice(0,24)
+    const videoId = url.split('v=')[1].slice(0, 11).trim()
+    return ethers.utils.formatBytes32String(videoId).slice(0, 24)
   }
 
   useEffect(() => {
     if (contractAddress) {
-      fetchBeatboxers()
+      fetchBattles()
     }
   }, [contractAddress])
 
@@ -123,10 +120,9 @@ export default function CreateBattle({ competition }: CreateBattleProps) {
         contractAddress: contractAddress as string,
         abi: BBX_COMPETITION_ABI,
         params: {
-          name: name,
-          category: category,
-          beatboxerOneAddress: battleAddresses[0],
-          beatboxerTwoAddress: battleAddresses[1],
+          stateBattleId: battle.id,
+          name,
+          state,
           ytVideoIdOne: youtubeUrlToBytes11(videoUrls[0]),
           ytVideoIdTwo: youtubeUrlToBytes11(videoUrls[1]),
           startTime: dayjs.utc(battleStart).unix(),
@@ -134,6 +130,7 @@ export default function CreateBattle({ competition }: CreateBattleProps) {
           winningAmount: ethers.utils.parseEther(winningAmount.toString()),
         },
       }
+      console.log(options)
       const battleTx = await Moralis.executeFunction(options)
       await battleTx.wait()
       clearForm()
@@ -147,9 +144,7 @@ export default function CreateBattle({ competition }: CreateBattleProps) {
   const clearForm = () => {
     setName('')
     setCategory(0)
-    setBattleAddresses([])
     setVideoUrls(['', ''])
-    setNames([])
     setWinningAmount(0)
     setBattleStart(today)
     setBattleEnd(today)
@@ -171,14 +166,14 @@ export default function CreateBattle({ competition }: CreateBattleProps) {
           />
         </FormControl>
         <FormControl padding={3} isRequired>
-          <FormLabel htmlFor="battle-category">Category</FormLabel>
+          <FormLabel htmlFor="battle-state">State</FormLabel>
           <Select
-            placeholder="Select Category"
-            id="battle-category"
+            placeholder="Select State"
+            id="battle-state"
             onChange={(e) => setCategory(parseInt(e.target.value))}
           >
             {battleCategory.map(([cat, index]) => (
-              <option key={index} value={2}>
+              <option key={index} value={index}>
                 {cat}
               </option>
             ))}
@@ -188,32 +183,23 @@ export default function CreateBattle({ competition }: CreateBattleProps) {
           <FormLabel htmlFor="battle-select">Beatboxer v/s Beatboxer</FormLabel>
           <Select
             placeholder="Select battle"
-            onChange={(e: ChangeEvent<HTMLSelectElement>) => {
-              if (e.target.value) {
-                setBattleAddresses(e.target.value.split(','))
-                setNames(
-                  e.target.children[e.target.selectedIndex].innerHTML.split(
-                    ' V/S '
-                  )
-                )
-              } else {
-                setBattleAddresses([])
-              }
-            }}
+            onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+              setBattle(battles[parseInt(e.target.value)])
+            }
           >
             {battles.map((battle, index) => (
-              <option key={index} value={battle.addresses}>
+              <option key={index} value={battle.id}>
                 {battle.name}
               </option>
             ))}
           </Select>
         </FormControl>
 
-        {battleAddresses.length > 0 && (
+        {battle?.name.length > 0 && (
           <>
             <FormControl padding={3} isRequired>
               <FormLabel htmlFor="youtube-url-1">
-                {names[0] + ' Youtube URL'}
+                {battle.beatboxerOne + ' Youtube URL'}
               </FormLabel>
               <Input
                 id="youtube-url-1"
@@ -224,7 +210,7 @@ export default function CreateBattle({ competition }: CreateBattleProps) {
             </FormControl>
             <FormControl padding={3} isRequired>
               <FormLabel htmlFor="youtube-url-2">
-                {names[1] + ' Youtube URL'}
+                {battle.beatboxerTwo + ' Youtube URL'}
               </FormLabel>
               <Input
                 id="youtube-url-2"

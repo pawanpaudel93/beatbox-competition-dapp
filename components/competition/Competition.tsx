@@ -9,7 +9,12 @@ interface Props {
 export default function Competition({ competition }: Props) {
   return (
     <Box maxW="sm" borderWidth="1px" borderRadius="lg" overflow="hidden">
-      <Image src={competition.image} alt={competition.name} h={200} w="full" />
+      <Image
+        src={competition.imageURI}
+        alt={competition.name}
+        h={200}
+        w="full"
+      />
 
       <Box p="6">
         <Box display="flex" alignItems="baseline">

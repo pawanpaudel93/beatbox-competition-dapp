@@ -11,6 +11,7 @@ import {
   Container,
   Textarea,
 } from '@chakra-ui/react'
+import { ethers } from 'ethers'
 import { useMoralisFile } from 'react-moralis'
 import FileUpload from '../components/FileUpload'
 import {
@@ -58,18 +59,15 @@ const CreateCompetition: NextPage = () => {
     e.preventDefault()
     try {
       setIsLoading(true)
-      const imageUrl = await uploadFile()
+      const imageURI = await uploadFile()
       const options = {
         contractAddress: COMPETITION_FACTORY_ADDRESS,
         functionName: 'createCompetition',
         abi: COMPETITION_FACTORY_ABI,
         params: {
-          name,
+          name: ethers.utils.formatBytes32String(name),
           description,
-          image: imageUrl,
-          chainlinkToken: process.env.NEXT_PUBLIC_CHAINLINK_TOKEN,
-          chainlinkOracle: process.env.NEXT_PUBLIC_CHAINLINK_ORACLE,
-          chainlinkJobId: process.env.NEXT_PUBLIC_CHAINLINK_JOBID,
+          imageURI
         },
       }
       const competitionTx = await Moralis.executeFunction(options)
@@ -95,6 +93,7 @@ const CreateCompetition: NextPage = () => {
             id="competition-name"
             placeholder="Competition Name"
             value={name}
+            maxLength={32}
             onChange={(e) => setName(e.target.value)}
           />
         </FormControl>
