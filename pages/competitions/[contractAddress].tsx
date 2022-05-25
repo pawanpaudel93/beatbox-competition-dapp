@@ -103,7 +103,7 @@ const ContractDetail: NextPage = () => {
           </Center>
         </TabPanel>
         <TabPanel>
-          <Wildcards competition={competition} isAdmin={roles.isAdmin} />
+          <Wildcards competition={competition} roles={roles} />
         </TabPanel>
         <TabPanel>
           <Judges competition={competition} isAdmin={roles.isAdmin} />

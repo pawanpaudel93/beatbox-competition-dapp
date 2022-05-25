@@ -1,5 +1,13 @@
 import { useMoralis } from 'react-moralis'
-import { Box, Grid } from '@chakra-ui/react'
+import {
+  Alert,
+  AlertIcon,
+  Box,
+  Center,
+  Grid,
+  Spinner,
+  Text,
+} from '@chakra-ui/react'
 import UpdateWildcard from './UpdateWildcard'
 import { ICompetition } from '../../interfaces'
 import Moralis from 'moralis'
@@ -33,12 +41,27 @@ export default function MyWilcard({
       wildcard.attributes.userAddress === user?.attributes.ethAddress
   )
 
-  if (allWildcards.isFetching) {
-    return <Box>Fetching wildcard...</Box>
-  } else if (allWildcards.isLoading) {
-    return <Box>Loading wildcard...</Box>
+  if (allWildcards.isLoading || allWildcards.isFetching) {
+    return (
+      <Center>
+        <Spinner
+          thickness="4px"
+          speed="0.65s"
+          emptyColor="gray.200"
+          color="blue.500"
+          size="xl"
+          m={4}
+        />
+        <Text>Fetching wildcard...</Text>
+      </Center>
+    )
   } else if (allWildcards.error) {
-    return <Box>Error fetching wildcard: {allWildcards.error.message}</Box>
+    return (
+      <Alert status="error">
+        <AlertIcon />
+        Error fetching wildcard: {allWildcards.error.message}
+      </Alert>
+    )
   }
 
   return (
@@ -84,7 +107,10 @@ export default function MyWilcard({
           </Box>
         ))
       ) : (
-        <Box>No wildcard yet</Box>
+        <Alert status="info">
+          <AlertIcon />
+          No wildcards yet.
+        </Alert>
       )}
     </Grid>
   )

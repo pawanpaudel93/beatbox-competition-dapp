@@ -1,18 +1,44 @@
-import { ICompetition } from '../../interfaces'
-import { CompetitionState } from '../../constants'
-
-interface MyBattlesProps {
-  competition: ICompetition
+import { Alert, AlertIcon } from '@chakra-ui/react'
+import { useRouter } from 'next/router'
+import { IBattle } from '../../interfaces'
+import SingleBattle from './SingleBattle'
+interface AllBattlesProps {
+  isJudge: boolean
+  votedBattles: { [key: number]: boolean }
+  battles: IBattle[]
+  fetchVotedBattlesIndices: () => Promise<void>
 }
 
-export default function MyBattles({ competition }: MyBattlesProps) {
-  const wildcardStarted =
-    CompetitionState.WILDCARD === competition.competitionState
-  const wildcardEnded =
-    competition.competitionState !== CompetitionState.WILDCARD &&
-    competition.competitionState !== CompetitionState.NOT_STARTED
+export default function MyBattles({
+  isJudge,
+  votedBattles,
+  battles,
+  fetchVotedBattlesIndices,
+}: AllBattlesProps) {
+  const router = useRouter()
+  const { contractAddress } = router.query
 
-  const isDisabled = !wildcardStarted || wildcardEnded
+  if (battles.length === 0) {
+    return (
+      <Alert status="info">
+        <AlertIcon />
+        No Battles yet.
+      </Alert>
+    )
+  }
 
-  return <>No Battles yet!</>
+  return (
+    <>
+      {battles.map((battle, index) => (
+        <SingleBattle
+          key={index}
+          battle={battle}
+          contractAddress={contractAddress as string}
+          isJudge={isJudge}
+          isVoted={votedBattles[battle.id]}
+          fetchVotedBattlesIndices={fetchVotedBattlesIndices}
+        />
+      ))}
+    </>
+  )
 }

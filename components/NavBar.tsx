@@ -31,9 +31,14 @@ interface NavItem {
 
 const NavItems: Array<NavItem> = [
   {
-    key: 1,
+    key: 0,
     label: 'Create Competition',
     href: '/create-competition',
+  },
+  {
+    key: 1,
+    label: 'Competitions',
+    href: '/competitions',
   },
   {
     key: 2,

@@ -33,11 +33,13 @@ export function VoteModal({
   contractAddress,
   isDisabled,
   isVoted,
+  fetchVotedBattlesIndices,
 }: {
   battle: IBattle
   contractAddress: string
   isDisabled: boolean
   isVoted: boolean
+  fetchVotedBattlesIndices: () => Promise<void>
 }) {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { Moralis } = useMoralis()
@@ -60,7 +62,6 @@ export function VoteModal({
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-
     try {
       const options = {
         contractAddress,
@@ -84,10 +85,12 @@ export function VoteModal({
       await voteBattleTx.wait()
       toast.success('Voted Successfully')
       onClose()
+      setIsLoading(false)
+      fetchVotedBattlesIndices()
     } catch (error) {
+      setIsLoading(false)
       toast.error(error.message)
     }
-    setIsLoading(false)
   }
 
   return (
@@ -130,7 +133,7 @@ export function VoteModal({
                         })
                       }
                     >
-                      <NumberInputField />
+                      v <NumberInputField />
                       <NumberInputStepper>
                         <NumberIncrementStepper />
                         <NumberDecrementStepper />

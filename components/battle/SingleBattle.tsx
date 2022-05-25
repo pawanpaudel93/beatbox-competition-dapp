@@ -22,11 +22,13 @@ export default function SingleBattle({
   contractAddress,
   isJudge,
   isVoted,
+  fetchVotedBattlesIndices,
 }: {
   battle: IBattle
   contractAddress: string
   isJudge: boolean
   isVoted: boolean
+  fetchVotedBattlesIndices: () => Promise<void>
 }) {
   const AddressZero = ethers.constants.AddressZero
   const Video = ({ videoId }: { videoId: string }) => {
@@ -125,6 +127,7 @@ export default function SingleBattle({
                   battle={battle}
                   contractAddress={contractAddress}
                   isDisabled={AddressZero !== battle.winnerAddress || !isJudge}
+                  fetchVotedBattlesIndices={fetchVotedBattlesIndices}
                   isVoted={isVoted}
                 />
               </Box>

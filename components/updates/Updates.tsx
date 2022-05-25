@@ -3,15 +3,20 @@ import {
   Heading,
   StackDivider,
   VStack,
-  Text,
   HStack,
   IconButton,
+  Alert,
+  AlertIcon,
+  Center,
+  Spinner,
+  Text,
 } from '@chakra-ui/react'
 import UpdateModal from './UpdateModal'
 import UpdateDetailModal from './UpdateDetailModal'
 import { useMoralisQuery } from 'react-moralis'
 import dayjs from 'dayjs'
 import { EditIcon } from '@chakra-ui/icons'
+import competitions from '../../pages/competitions'
 
 export default function Updates() {
   const {
@@ -19,19 +24,39 @@ export default function Updates() {
     isFetching,
     isLoading,
     error,
-  } = useMoralisQuery('Update', (query) => query, [], {
+  } = useMoralisQuery('Update', (query) => query.descending('createdAt'), [], {
     autoFetch: true,
     live: true,
   })
 
-  if (isLoading) {
-    return <div>Loading updates...</div>
-  } else if (isFetching) {
-    return <div>Fetching updates...</div>
+  if (isLoading || isFetching) {
+    return (
+      <Center>
+        <Spinner
+          thickness="4px"
+          speed="0.65s"
+          emptyColor="gray.200"
+          color="blue.500"
+          size="xl"
+          m={4}
+        />
+        <Text>Fetching updates...</Text>
+      </Center>
+    )
   } else if (error) {
-    return <div>Error fetching updates: {error.message}</div>
+    return (
+      <Alert status="error">
+        <AlertIcon />
+        Error fetching updates: {error.message}
+      </Alert>
+    )
   } else if (updates.length === 0) {
-    return <div>No updates found</div>
+    return (
+      <Alert status="info">
+        <AlertIcon />
+        No updates yet.
+      </Alert>
+    )
   }
 
   return (

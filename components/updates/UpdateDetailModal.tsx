@@ -21,7 +21,6 @@ import {
 } from '@chakra-ui/react'
 import Moralis from 'moralis/types'
 import dayjs from 'dayjs'
-import { EditIcon } from '@chakra-ui/icons'
 
 export default function UpdateDetailModal({
   update,
@@ -31,7 +30,7 @@ export default function UpdateDetailModal({
   const { isOpen, onOpen, onClose } = useDisclosure()
   return (
     <>
-      <Button variant="outline" onClick={onOpen} colorScheme="blue">
+      <Button mt={1} variant="outline" onClick={onOpen} colorScheme="blue">
         Read More
       </Button>
       <Modal onClose={onClose} size="full" isOpen={isOpen}>
@@ -86,21 +85,23 @@ export default function UpdateDetailModal({
                     <Text fontSize={'lg'}>{update.attributes.description}</Text>
                   </Stack>
                 </Stack>
-                <Flex>
-                  <Box
-                    as="iframe"
-                    src={
-                      update.attributes.videoUrl.indexOf('youtube') > 0
-                        ? 'https://www.youtube.com/embed/' +
-                          update.attributes.videoUrl.split('=').pop()
-                        : update.attributes.videoUrl
-                    }
-                    width="100%"
-                    allowFullScreen
-                    w={'100%'}
-                    h={{ base: '100%', sm: '400px', lg: '500px' }}
-                  />
-                </Flex>
+                {update.attributes.videoUrl && (
+                  <Flex>
+                    <Box
+                      as="iframe"
+                      src={
+                        update.attributes.videoUrl.indexOf('youtube') > 0
+                          ? 'https://www.youtube.com/embed/' +
+                            update.attributes.videoUrl.split('=').pop()
+                          : update.attributes.videoUrl
+                      }
+                      width="100%"
+                      allowFullScreen
+                      w={'100%'}
+                      h={{ base: '100%', sm: '400px', lg: '500px' }}
+                    />
+                  </Flex>
+                )}
               </SimpleGrid>
             </Container>
           </ModalBody>

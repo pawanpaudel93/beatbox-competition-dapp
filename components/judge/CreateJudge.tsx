@@ -20,11 +20,10 @@ export default function CreateJudge() {
   const [name, setName] = useState('')
   const [address, setAddress] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [isError, setIsError] = useState(false)
   const { save } = useNewMoralisObject('Judge')
   const router = useRouter()
   const { contractAddress } = router.query
-
-  const [isError, setIsError] = useState(false)
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -33,7 +32,7 @@ export default function CreateJudge() {
     const data = {
       name,
       contractAddress,
-      userAddress: address,
+      userAddress: address.toLowerCase(),
     }
     const Judge = Moralis.Object.extend('Judge')
     const query = new Moralis.Query(Judge)
@@ -42,7 +41,6 @@ export default function CreateJudge() {
     const judge = await query.find()
     if (judge.length == 0) {
       try {
-        await save(data)
         const options = {
           contractAddress: contractAddress as string,
           functionName: 'addJudge',
@@ -54,6 +52,7 @@ export default function CreateJudge() {
         }
         const addTx = await Moralis.executeFunction(options)
         await addTx.wait()
+        await save(data)
         toast.success('Judge added successfully!')
         clearForm()
       } catch (error) {

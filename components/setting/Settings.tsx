@@ -1,10 +1,19 @@
-import { VStack, HStack, Box, Heading, Button } from '@chakra-ui/react'
+import {
+  VStack,
+  HStack,
+  Box,
+  Heading,
+  Button,
+  FormControl,
+  Input,
+  Center,
+} from '@chakra-ui/react'
 import { ICompetition } from '../../interfaces'
 import { useRouter } from 'next/router'
 import { BBX_COMPETITION_ABI, CompetitionState } from '../../constants'
 import { useMoralis } from 'react-moralis'
 import { toast } from 'react-toastify'
-import { useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 
 interface SettingsProps {
   competition: ICompetition
@@ -17,10 +26,36 @@ export default function Settings({
   const router = useRouter()
   const { Moralis } = useMoralis()
   const { contractAddress } = router.query
+  const [subscriptionId, setSubscriptionId] = useState('')
   const [isLoading, setIsLoading] = useState({
     start: false,
     end: false,
+    subscription: false,
   })
+
+  useEffect(() => {
+    if (contractAddress && !subscriptionId) {
+      fetchSubscriptionId()
+    }
+  }, [contractAddress])
+
+  const fetchSubscriptionId = async () => {
+    try {
+      const options = {
+        contractAddress: contractAddress as string,
+        abi: BBX_COMPETITION_ABI,
+        functionName: 'subscriptionId',
+        params: [],
+      }
+      const _subscriptionId = (await Moralis.executeFunction(
+        options
+      )) as unknown as number
+      console.log(_subscriptionId)
+      setSubscriptionId(_subscriptionId)
+    } catch (error) {
+      console.log(error.message)
+    }
+  }
 
   const startWildcard = async () => {
     try {
@@ -59,6 +94,26 @@ export default function Settings({
     }
     setIsLoading({ ...isLoading, end: false })
   }
+
+  const updateSubscriptionId = async () => {
+    try {
+      setIsLoading({ ...isLoading, subscription: true })
+      const options = {
+        contractAddress: contractAddress as string,
+        abi: BBX_COMPETITION_ABI,
+        functionName: 'setSubscriptionId',
+        params: {
+          _subscriptionId: subscriptionId,
+        },
+      }
+      const endWildcardTx = await Moralis.executeFunction(options)
+      await endWildcardTx.wait()
+      toast.success('Subscription Id set!')
+    } catch (error) {
+      toast.error(error.message)
+    }
+    setIsLoading({ ...isLoading, subscription: false })
+  }
   return (
     <VStack spacing={4}>
       <Box p={4} shadow="md">
@@ -92,6 +147,31 @@ export default function Settings({
           </Button>
         </HStack>
       </Box>
+
+      <HStack spacing={8} mt={8}>
+        <FormControl>
+          <Heading fontSize="xl">Set Subscription Id </Heading>
+          <Input
+            padding={2}
+            margin={2}
+            type="number"
+            value={subscriptionId}
+            placeholder="Subscription Id"
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              setSubscriptionId(parseInt(e.target.value))
+            }
+          />
+          <Center>
+            <Button
+              colorScheme="green"
+              onClick={updateSubscriptionId}
+              isLoading={isLoading.subscription}
+            >
+              Set
+            </Button>
+          </Center>
+        </FormControl>
+      </HStack>
     </VStack>
   )
 }

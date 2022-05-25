@@ -1,5 +1,11 @@
 import { BigNumber } from "ethers"
 
+
+export interface IRoles {
+    isAdmin: boolean
+    isHelper: boolean
+    isJudge: boolean
+}
 export interface ICompetition {
     name: string
     description: string

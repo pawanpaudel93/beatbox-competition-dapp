@@ -7,6 +7,11 @@ import {
   Td,
   TableContainer,
   Box,
+  Alert,
+  AlertIcon,
+  Center,
+  Spinner,
+  Text,
 } from '@chakra-ui/react'
 import { useMoralisQuery } from 'react-moralis'
 import { useRouter } from 'next/router'
@@ -14,6 +19,8 @@ import DeleteConfirm from '../modals/DeleteConfirm'
 import { useMoralis } from 'react-moralis'
 import { BBX_COMPETITION_ABI } from '../../constants'
 import { toast } from 'react-toastify'
+import JudgeSelectedWilcards from './JudgeSelectedWilcards'
+import competitions from '../../pages/competitions'
 
 export default function AllJudges({ isAdmin }: { isAdmin: boolean }) {
   const router = useRouter()
@@ -59,14 +66,34 @@ export default function AllJudges({ isAdmin }: { isAdmin: boolean }) {
     }
   }
 
-  if (isFetching) {
-    return <Box>Fetching judges...</Box>
-  } else if (isLoading) {
-    return <Box>Loading judges...</Box>
+  if (isLoading || isFetching) {
+    return (
+      <Center>
+        <Spinner
+          thickness="4px"
+          speed="0.65s"
+          emptyColor="gray.200"
+          color="blue.500"
+          size="xl"
+          m={4}
+        />
+        <Text>Fetching judges...</Text>
+      </Center>
+    )
   } else if (error) {
-    return <Box>Error fetching judges: {error.message}</Box>
+    return (
+      <Alert status="error">
+        <AlertIcon />
+        Error fetching judges: {error.message}
+      </Alert>
+    )
   } else if (judges.length === 0) {
-    return <Box>No judges yet</Box>
+    return (
+      <Alert status="info">
+        <AlertIcon />
+        No judges yet.
+      </Alert>
+    )
   }
 
   return (
@@ -77,12 +104,16 @@ export default function AllJudges({ isAdmin }: { isAdmin: boolean }) {
             <Tr>
               <Th>Name</Th>
               {isAdmin && <Th>Actions</Th>}
+              <Th>Voted Wildcards</Th>
             </Tr>
           </Thead>
           <Tbody>
             {judges.map((judge, index) => (
               <Tr key={index}>
                 <Td>{judge.attributes.name}</Td>
+                <Td>
+                  <JudgeSelectedWilcards judge={judge} />
+                </Td>
                 {isAdmin && (
                   <Td>
                     <DeleteConfirm

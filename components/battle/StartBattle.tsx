@@ -24,6 +24,7 @@ dayjs.extend(utc)
 
 interface CreateBattleProps {
   competition: ICompetition
+  fetchAllBattles: () => Promise<void>
 }
 
 interface IBattle {
@@ -38,7 +39,11 @@ interface IBeatboxer {
   beatboxerAddress: string
 }
 
-export default function CreateBattle({ competition }: CreateBattleProps) {
+export default function CreateBattle({
+  competition,
+  fetchAllBattles,
+  fetchVotedBattlesIndices,
+}: CreateBattleProps) {
   // const today = '2022-05-14T11:23'
   const today = new Date()
     .toISOString()
@@ -135,10 +140,12 @@ export default function CreateBattle({ competition }: CreateBattleProps) {
       await battleTx.wait()
       clearForm()
       toast.success('Battle started successfully!')
+      setIsLoading(false)
+      fetchAllBattles()
     } catch (error) {
+      setIsLoading(false)
       toast.error(error.message)
     }
-    setIsLoading(false)
   }
 
   const clearForm = () => {

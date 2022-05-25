@@ -6,6 +6,7 @@ import { MoralisProvider } from 'react-moralis'
 import NavBar from '../components/NavBar'
 import Footer from '../components/Footer'
 import { ChakraProvider } from '@chakra-ui/react'
+import NextNProgress from 'nextjs-progressbar'
 import { AuthenticationProvider } from '../context/AuthenticationContext'
 
 function MyApp({ Component, pageProps }: AppProps) {
@@ -18,6 +19,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     <MoralisProvider serverUrl={serverUrl} appId={appId}>
       <AuthenticationProvider>
         <ChakraProvider>
+          <NextNProgress />
           <NavBar />
           <div className="md:px-6 py-2 min-h-screen">
             <Component {...pageProps} />

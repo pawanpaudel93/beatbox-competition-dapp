@@ -5,20 +5,23 @@ import {
   StackDivider,
   VStack,
   Text,
+  Alert,
+  AlertIcon,
 } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
 import SelectWinners from './SelectWinners'
 import Moralis from 'moralis'
 import dayjs from 'dayjs'
+import { IRoles } from '../../interfaces'
 
 interface WildcardWinnersProps {
   allWildcards: Moralis.Object<Moralis.Attributes>[]
-  isAdmin: boolean
+  roles: IRoles
 }
 
 export default function WildcardWinners({
   allWildcards,
-  isAdmin,
+  roles,
 }: WildcardWinnersProps) {
   const router = useRouter()
   const { contractAddress } = router.query
@@ -27,10 +30,11 @@ export default function WildcardWinners({
 
   return (
     <>
-      {isAdmin && contractAddress && (
+      {(roles.isAdmin || roles.isJudge) && contractAddress && (
         <SelectWinners
           wildcards={allWildcards}
           contractAddress={contractAddress as string}
+          roles={roles}
         />
       )}
       {wildcards.length > 0 ? (
@@ -83,9 +87,10 @@ export default function WildcardWinners({
           ))}
         </VStack>
       ) : (
-        <Box>
-          <Heading>No Winners Yet</Heading>
-        </Box>
+        <Alert status="info">
+          <AlertIcon />
+          No winners yet.
+        </Alert>
       )}
     </>
   )

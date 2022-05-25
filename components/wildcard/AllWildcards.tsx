@@ -1,4 +1,4 @@
-import { Box, Grid } from '@chakra-ui/react'
+import { Alert, AlertIcon, Box, Grid } from '@chakra-ui/react'
 import Moralis from 'moralis'
 
 interface AllWildcardsProps {
@@ -68,7 +68,10 @@ export default function AllWildcards({ wildcards }: AllWildcardsProps) {
           </Box>
         ))
       ) : (
-        <Box>No wildcards yet</Box>
+        <Alert status="info">
+          <AlertIcon />
+          No wildcards yet.
+        </Alert>
       )}
     </Grid>
   )

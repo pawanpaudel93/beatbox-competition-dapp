@@ -5,14 +5,14 @@ import MyWildcard from './MyWildcard'
 import { useRouter } from 'next/router'
 import { useMoralisQuery } from 'react-moralis'
 import WildcardWinners from './WildcardWinners'
-import { ICompetition } from '../../interfaces'
+import { ICompetition, IRoles } from '../../interfaces'
 
 interface WildcardsProps {
   competition: ICompetition
-  isAdmin: boolean
+  roles: IRoles
 }
 
-export default function Wildcards({ competition, isAdmin }: WildcardsProps) {
+export default function Wildcards({ competition, roles }: WildcardsProps) {
   const router = useRouter()
   const { contractAddress } = router.query
 
@@ -25,6 +25,7 @@ export default function Wildcards({ competition, isAdmin }: WildcardsProps) {
       live: true,
     }
   )
+
   return (
     <Tabs>
       <TabList>
@@ -45,7 +46,7 @@ export default function Wildcards({ competition, isAdmin }: WildcardsProps) {
           {wildcards.isFetching ? (
             <Box>Fetching selected wildcards...</Box>
           ) : (
-            <WildcardWinners allWildcards={wildcards.data} isAdmin={isAdmin} />
+            <WildcardWinners allWildcards={wildcards.data} roles={roles} />
           )}
         </TabPanel>
         <TabPanel>

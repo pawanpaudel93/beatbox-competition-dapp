@@ -1,16 +1,15 @@
 import type { NextPage } from 'next'
+import { useMoralisQuery } from 'react-moralis'
 import { Alert, AlertIcon, Center, Grid, Spinner, Text } from '@chakra-ui/react'
-import Competition from '../components/competition/Competition'
-import { ICompetition } from '../interfaces'
-import { useMoralisQuery, useMoralis } from 'react-moralis'
+import Competition from './../../components/competition/Competition'
+import { ICompetition } from './../../interfaces'
 import { ethers } from 'ethers'
 
-const MyCompetitions: NextPage = () => {
-  const { user } = useMoralis()
+const Competitions: NextPage = () => {
   const { data, isFetching, isLoading, error } = useMoralisQuery(
     'Competition',
-    (query) => query && query.equalTo('creator', user?.get('ethAddress')),
-    [user?.get('ethAddress')],
+    (query) => query,
+    [],
     {
       autoFetch: true,
       live: true,
@@ -38,14 +37,14 @@ const MyCompetitions: NextPage = () => {
           size="xl"
           m={4}
         />
-        <Text>Fetching my competitions</Text>
+        <Text>Fetching competitions</Text>
       </Center>
     )
   } else if (error) {
     return (
       <Alert status="error">
         <AlertIcon />
-        Error fetching my competitions: {error.message}
+        Error fetching competitions: {error.message}
       </Alert>
     )
   } else if (competitions.length === 0) {
@@ -72,4 +71,4 @@ const MyCompetitions: NextPage = () => {
   )
 }
 
-export default MyCompetitions
+export default Competitions
