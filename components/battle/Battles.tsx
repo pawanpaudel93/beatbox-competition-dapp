@@ -9,6 +9,8 @@ import MyBattles from './MyBattles'
 import { ICompetition } from '../../interfaces'
 import { BBX_COMPETITION_ABI } from '../../constants'
 import { IBattle } from '../../interfaces'
+import { getBeatboxCompetition } from '../../utils'
+import Moralis from 'moralis'
 interface BattlesProps {
   competition: ICompetition
   isJudge: boolean
@@ -27,6 +29,10 @@ export default function Battles({
     {}
   )
   const [battles, setBattles] = useState<IBattle[]>([])
+  const [beatboxers, setBeatboxers] = useState<
+    Moralis.Object<Moralis.Attributes>[]
+  >([])
+  const [judges, setJudges] = useState({})
 
   const fetchVotedBattlesIndices = async () => {
     try {
@@ -46,7 +52,6 @@ export default function Battles({
         {}
       )
       setVotedBattles(_votedBattles)
-      console.log(votedBattles)
     } catch (error) {
       console.error(error)
     }
@@ -57,37 +62,74 @@ export default function Battles({
   }
 
   const fetchAllBattles = async () => {
-    const options = {
-      contractAddress: contractAddress as string,
-      abi: BBX_COMPETITION_ABI,
-      functionName: 'getAllBattles',
-      params: [],
+    try {
+      const beatboxCompetition = getBeatboxCompetition(
+        contractAddress as string
+      )
+
+      const battles = await beatboxCompetition.getAllBattles()
+      const _battles: IBattle[] = (battles as IBattle[]).map((battle, id) => ({
+        id,
+        name: battle.name,
+        state: battle.state,
+        winningAmount: battle.winningAmount,
+        winnerId: battle.winnerId,
+        startTime: battle.startTime,
+        endTime: battle.endTime,
+        totalVotes: battle.totalVotes,
+        beatboxerOne: {
+          score: battle.beatboxerOne.score,
+          beatboxerId: battle.beatboxerOne.beatboxerId,
+          ytVideoId: bytes11ToString(battle.beatboxerOne.ytVideoId),
+          likeCount: battle.beatboxerOne.likeCount,
+        },
+        beatboxerTwo: {
+          score: battle.beatboxerTwo.score,
+          beatboxerId: battle.beatboxerTwo.beatboxerId,
+          ytVideoId: bytes11ToString(battle.beatboxerTwo.ytVideoId),
+          likeCount: battle.beatboxerTwo.likeCount,
+        },
+      }))
+      setBattles(_battles)
+    } catch (error) {
+      console.error(error)
     }
-    const battles = await Moralis.executeFunction(options)
-    const _battles: IBattle[] = (battles as IBattle[]).map((battle, id) => ({
-      id,
-      name: battle.name,
-      state: battle.state,
-      winningAmount: battle.winningAmount,
-      winnerAddress: battle.winnerAddress,
-      startTime: battle.startTime,
-      endTime: battle.endTime,
-      totalVotes: battle.totalVotes,
-      beatboxerOne: {
-        score: battle.beatboxerOne.score,
-        beatboxerAddress: battle.beatboxerOne.beatboxerAddress,
-        ytVideoId: bytes11ToString(battle.beatboxerOne.ytVideoId),
-        likeCount: battle.beatboxerOne.likeCount,
-      },
-      beatboxerTwo: {
-        score: battle.beatboxerTwo.score,
-        beatboxerAddress: battle.beatboxerTwo.beatboxerAddress,
-        ytVideoId: bytes11ToString(battle.beatboxerTwo.ytVideoId),
-        likeCount: battle.beatboxerTwo.likeCount,
-      },
-    }))
-    setBattles(_battles)
   }
+
+  const fetchAllBeatboxers = async () => {
+    try {
+      const Wildcard = Moralis.Object.extend('Wildcard')
+      const query = new Moralis.Query(Wildcard)
+      query.equalTo('isWinner', true)
+      query.ascending('rank')
+      const beatboxers = await query.find()
+      setBeatboxers(beatboxers)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  const fetchAllJudges = async () => {
+    try {
+      const query = new Moralis.Query('Judge')
+      query.equalTo(
+        'contractAddress',
+        (contractAddress as string).toLowerCase()
+      )
+      const _judges = await query.find()
+      const _judesObj = _judges.reduce(
+        (acc, judge) => ({
+          ...acc,
+          [judge.attributes.userAddress]: judge.attributes.name,
+        }),
+        {}
+      )
+      setJudges(_judesObj)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   useEffect(() => {
     if (contractAddress && user?.get('ethAddress')) {
       fetchVotedBattlesIndices()
@@ -95,7 +137,11 @@ export default function Battles({
   }, [user?.get('ethAddress'), contractAddress])
 
   useEffect(() => {
-    if (contractAddress) fetchAllBattles()
+    if (contractAddress) {
+      fetchAllBeatboxers()
+      fetchAllJudges()
+      fetchAllBattles()
+    }
   }, [contractAddress])
 
   return (
@@ -121,20 +167,25 @@ export default function Battles({
             votedBattles={votedBattles}
             fetchVotedBattlesIndices={fetchVotedBattlesIndices}
             battles={battles}
+            beatboxers={beatboxers}
+            judges={judges}
           />
         </TabPanel>
         <TabPanel>
-          <MyBattles
-            fetchVotedBattlesIndices={fetchVotedBattlesIndices}
-            isJudge={isJudge}
-            votedBattles={votedBattles}
-            battles={battles.filter(
-              (battle) =>
-                battle.beatboxerOne.beatboxerAddress ===
-                  user?.get('ethAddress') ||
-                battle.beatboxerTwo.beatboxerAddress === user?.get('ethAddress')
-            )}
-          />
+          {beatboxers.length > 0 && (
+            <MyBattles
+              fetchVotedBattlesIndices={fetchVotedBattlesIndices}
+              isJudge={isJudge}
+              votedBattles={votedBattles}
+              battles={battles.filter(
+                (battle) =>
+                  beatboxers[battle.beatboxerOne.beatboxerId.toNumber()]
+                    .attributes.userAddress === user?.get('ethAddress') ||
+                  beatboxers[battle.beatboxerTwo.beatboxerId.toNumber()]
+                    .attributes.userAddress === user?.get('ethAddress')
+              )}
+            />
+          )}
         </TabPanel>
       </TabPanels>
     </Tabs>

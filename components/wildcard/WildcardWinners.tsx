@@ -12,16 +12,18 @@ import { useRouter } from 'next/router'
 import SelectWinners from './SelectWinners'
 import Moralis from 'moralis'
 import dayjs from 'dayjs'
-import { IRoles } from '../../interfaces'
+import { ICompetition, IRoles } from '../../interfaces'
 
 interface WildcardWinnersProps {
   allWildcards: Moralis.Object<Moralis.Attributes>[]
+  competition: ICompetition
   roles: IRoles
 }
 
 export default function WildcardWinners({
   allWildcards,
   roles,
+  competition,
 }: WildcardWinnersProps) {
   const router = useRouter()
   const { contractAddress } = router.query
@@ -32,6 +34,7 @@ export default function WildcardWinners({
     <>
       {(roles.isAdmin || roles.isJudge) && contractAddress && (
         <SelectWinners
+          competition={competition}
           wildcards={allWildcards}
           contractAddress={contractAddress as string}
           roles={roles}

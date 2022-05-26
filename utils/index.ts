@@ -1,3 +1,5 @@
+import { Contract, ethers } from "ethers"
+import { BBX_COMPETITION_ABI } from "../constants"
 export const getCategoryByState = (state: number) => {
     switch (state) {
         case 3:
@@ -8,5 +10,12 @@ export const getCategoryByState = (state: number) => {
             return 'Semi Final'
         case 6:
             return 'Final'
+        default:
+            return 'Not Started'
     }
+}
+
+export const getBeatboxCompetition = (address: string) => {
+    const provider = new ethers.providers.JsonRpcProvider()
+    return new Contract(address, BBX_COMPETITION_ABI, provider)
 }

@@ -19,6 +19,7 @@ import {
   COMPETITION_FACTORY_ABI,
 } from '../constants'
 import { useMoralis } from 'react-moralis'
+import { toast } from 'react-toastify'
 
 const CreateCompetition: NextPage = () => {
   const [name, setName] = useState('')
@@ -67,7 +68,7 @@ const CreateCompetition: NextPage = () => {
         params: {
           name: ethers.utils.formatBytes32String(name),
           description,
-          imageURI
+          imageURI,
         },
       }
       const competitionTx = await Moralis.executeFunction(options)
@@ -77,7 +78,7 @@ const CreateCompetition: NextPage = () => {
       router.push('/my-competitions')
     } catch (e) {
       setIsLoading(false)
-      console.log(e)
+      toast.error(e.message)
     }
   }
 

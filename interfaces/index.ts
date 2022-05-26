@@ -14,6 +14,7 @@ export interface ICompetition {
     creator?: string
     competitionId?: BigNumber
     competitionState: number
+    judgeCount?: number
 }
 
 export interface IBeatboxer {
@@ -26,20 +27,33 @@ export interface IBattle {
     name: string
     state: number
     winningAmount: BigNumber
-    winnerAddress: string
+    winnerId: BigNumber
     startTime: BigNumber
     endTime: BigNumber
     totalVotes: BigNumber
     beatboxerOne: {
         score: number
-        beatboxerAddress: string
+        beatboxerId: BigNumber
         ytVideoId: string
         likeCount: BigNumber
     }
     beatboxerTwo: {
         score: number
-        beatboxerAddress: string
+        beatboxerId: BigNumber
         ytVideoId: string
         likeCount: BigNumber
     }
+}
+
+export interface IPoint {
+    originality: number
+    pitchAndTiming: number
+    complexity: number
+    enjoymentOfListening: number
+    video: number
+    audio: number
+    battle: number
+    extraPoint: number
+    votedBy: string
+    votedFor: BigNumber
 }

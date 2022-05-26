@@ -24,9 +24,10 @@ import { FormEvent, useState } from 'react'
 import { useDisclosure } from '@chakra-ui/react'
 import { useMoralis } from 'react-moralis'
 import { toast } from 'react-toastify'
-import { IBattle } from '../../interfaces'
+import { IBattle, IPoint } from '../../interfaces'
 import { BBX_COMPETITION_ABI } from '../../constants'
 import { getCategoryByState } from '../../utils'
+import { BigNumber } from 'ethers'
 
 export function VoteModal({
   battle,
@@ -54,9 +55,11 @@ export function VoteModal({
     audio: 0,
     battle: 0,
     extraPoint: 0,
+    votedBy: '',
+    votedFor: BigNumber.from('0'),
   }
-  const [pointOne, setPointOne] = useState(point)
-  const [pointTwo, setPointTwo] = useState(point)
+  const [pointOne, setPointOne] = useState<IPoint>(point)
+  const [pointTwo, setPointTwo] = useState<IPoint>(point)
   const [isLoading, setIsLoading] = useState(false)
 
   const onSubmit = async (e: FormEvent) => {
@@ -71,12 +74,12 @@ export function VoteModal({
           battleId: battle.id,
           point1: {
             ...pointOne,
-            votedFor: battle.beatboxerOne.beatboxerAddress,
+            votedFor: battle.beatboxerOne.beatboxerId,
             votedBy: user?.get('ethAddress'),
           },
           point2: {
             ...pointTwo,
-            votedFor: battle.beatboxerTwo.beatboxerAddress,
+            votedFor: battle.beatboxerTwo.beatboxerId,
             votedBy: user?.get('ethAddress'),
           },
         },
@@ -133,7 +136,7 @@ export function VoteModal({
                         })
                       }
                     >
-                      v <NumberInputField />
+                      <NumberInputField />
                       <NumberInputStepper>
                         <NumberIncrementStepper />
                         <NumberDecrementStepper />

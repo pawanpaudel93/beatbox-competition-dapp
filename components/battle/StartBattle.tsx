@@ -10,12 +10,16 @@ import {
   AlertIcon,
   AlertDescription,
   Select,
+  InputGroup,
+  InputRightAddon,
+  Tag,
 } from '@chakra-ui/react'
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import { useMoralis } from 'react-moralis'
 import { useRouter } from 'next/router'
 import { toast } from 'react-toastify'
 import { ethers } from 'ethers'
+import { getBeatboxCompetition, getCategoryByState } from '../../utils'
 import { ICompetition } from '../../interfaces'
 import { BBX_COMPETITION_ABI, CompetitionState } from '../../constants'
 import dayjs from 'dayjs'
@@ -58,7 +62,7 @@ export default function CreateBattle({
     beatboxerOne: '',
     beatboxerTwo: '',
   })
-  const [state, setCategory] = useState(0)
+  const [state, setState] = useState(0)
   const [winningAmount, setWinningAmount] = useState(0)
   const [battleStart, setBattleStart] = useState(today)
   const [battleEnd, setBattleEnd] = useState(today)
@@ -68,24 +72,14 @@ export default function CreateBattle({
   const { Moralis } = useMoralis()
   const router = useRouter()
   const { contractAddress } = router.query
-  const battleCategory = [
-    ['Top 16', 3],
-    ['Top 8', 4],
-    ['Semi Final', 5],
-    ['Final', 6],
-  ]
 
   const fetchBattles = async () => {
     try {
-      const options = {
-        contractAddress: contractAddress as string,
-        abi: BBX_COMPETITION_ABI,
-        functionName: 'getCurrentBattles',
-        params: {},
-      }
-      const _battles = (await Moralis.executeFunction(
-        options
-      )) as Array<IBeatboxer>[]
+      const beatboxCompetition = getBeatboxCompetition(
+        contractAddress as string
+      )
+      const _battles =
+        (await beatboxCompetition.getCurrentBattles()) as Array<IBeatboxer>[]
 
       setBattles(
         _battles.map((beatboxers, index) => ({
@@ -113,8 +107,9 @@ export default function CreateBattle({
   }, [contractAddress])
 
   const wildcardStarted =
-    CompetitionState.WILDCARD <= competition.competitionState
-  const wildcardEnded = CompetitionState.WILDCARD < competition.competitionState
+    CompetitionState.WILDCARD_SUBMISSION <= competition.competitionState
+  const wildcardEnded =
+    CompetitionState.WILDCARD_SUBMISSION < competition.competitionState
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -127,7 +122,6 @@ export default function CreateBattle({
         params: {
           stateBattleId: battle.id,
           name,
-          state,
           ytVideoIdOne: youtubeUrlToBytes11(videoUrls[0]),
           ytVideoIdTwo: youtubeUrlToBytes11(videoUrls[1]),
           startTime: dayjs.utc(battleStart).unix(),
@@ -150,7 +144,7 @@ export default function CreateBattle({
 
   const clearForm = () => {
     setName('')
-    setCategory(0)
+    setState(0)
     setVideoUrls(['', ''])
     setWinningAmount(0)
     setBattleStart(today)
@@ -164,6 +158,26 @@ export default function CreateBattle({
       </Center>
       <form onSubmit={onSubmit}>
         <FormControl padding={3} isRequired>
+          <FormLabel htmlFor="battle-select">Beatboxer v/s Beatboxer</FormLabel>
+          <Select
+            placeholder="Select battle"
+            onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+              try {
+                setBattle(battles[parseInt(e.target.value)])
+                setName(battles[parseInt(e.target.value)].name)
+              } catch (error) {
+                console.log(error)
+              }
+            }}
+          >
+            {battles.map((battle, index) => (
+              <option key={index} value={battle.id}>
+                {battle.name}
+              </option>
+            ))}
+          </Select>
+        </FormControl>
+        <FormControl padding={3} isRequired>
           <FormLabel htmlFor="battle-name">Name</FormLabel>
           <Input
             id="battle-name"
@@ -173,40 +187,18 @@ export default function CreateBattle({
           />
         </FormControl>
         <FormControl padding={3} isRequired>
-          <FormLabel htmlFor="battle-state">State</FormLabel>
-          <Select
-            placeholder="Select State"
-            id="battle-state"
-            onChange={(e) => setCategory(parseInt(e.target.value))}
-          >
-            {battleCategory.map(([cat, index]) => (
-              <option key={index} value={index}>
-                {cat}
-              </option>
-            ))}
-          </Select>
-        </FormControl>
-        <FormControl padding={3} isRequired>
-          <FormLabel htmlFor="battle-select">Beatboxer v/s Beatboxer</FormLabel>
-          <Select
-            placeholder="Select battle"
-            onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-              setBattle(battles[parseInt(e.target.value)])
-            }
-          >
-            {battles.map((battle, index) => (
-              <option key={index} value={battle.id}>
-                {battle.name}
-              </option>
-            ))}
-          </Select>
+          <FormLabel htmlFor="battle-state">Competition State</FormLabel>
+          <Tag colorScheme="blue" variant="solid">
+            {getCategoryByState(competition.competitionState)}
+          </Tag>{' '}
+          {' Battle'}
         </FormControl>
 
         {battle?.name.length > 0 && (
           <>
             <FormControl padding={3} isRequired>
               <FormLabel htmlFor="youtube-url-1">
-                {battle.beatboxerOne + ' Youtube URL'}
+                {battle.beatboxerOne + ' Youtube Video URL'}
               </FormLabel>
               <Input
                 id="youtube-url-1"
@@ -217,7 +209,7 @@ export default function CreateBattle({
             </FormControl>
             <FormControl padding={3} isRequired>
               <FormLabel htmlFor="youtube-url-2">
-                {battle.beatboxerTwo + ' Youtube URL'}
+                {battle.beatboxerTwo + ' Youtube Video URL'}
               </FormLabel>
               <Input
                 id="youtube-url-2"
@@ -230,13 +222,16 @@ export default function CreateBattle({
         )}
         <FormControl padding={3} isRequired>
           <FormLabel htmlFor="battle-amount">Winning Amount</FormLabel>
-          <Input
-            id="battle-amount"
-            type="number"
-            placeholder="Battle Winning Amount"
-            value={winningAmount}
-            onChange={(e) => setWinningAmount(e.target.value)}
-          />
+          <InputGroup>
+            <Input
+              id="battle-amount"
+              type="number"
+              placeholder="Battle Winning Amount (MATIC)"
+              value={winningAmount}
+              onChange={(e) => setWinningAmount(e.target.value)}
+            />
+            <InputRightAddon>MATIC</InputRightAddon>
+          </InputGroup>
         </FormControl>
         <FormControl padding={3} isRequired>
           <FormLabel htmlFor="battle-start">Battle Start Date</FormLabel>

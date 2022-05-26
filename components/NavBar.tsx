@@ -1,4 +1,3 @@
-import { useMoralis } from 'react-moralis'
 import { useAuthentication } from '../context/AuthenticationContext'
 import { ReactNode, useMemo } from 'react'
 import {
@@ -80,8 +79,8 @@ const NavLink = ({ children, href }: { children: ReactNode; href: string }) => (
 export default function NavBar() {
   const { colorMode, toggleColorMode } = useColorMode()
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const { signin, signout, user } = useAuthentication()
-  const { isAuthenticated, isAuthenticating } = useMoralis()
+  const { signin, signout, user, isAuthenticated, isAuthenticating } =
+    useAuthentication()
 
   const shorterAddress = useMemo(() => {
     const address = user?.get('ethAddress')
@@ -90,103 +89,111 @@ export default function NavBar() {
   }, [user?.get('ethAddress')])
 
   return (
-    <Box w="100%" bg={useColorModeValue('gray.100', 'gray.900')} px={4}>
-      <Flex h={16} alignItems={'center'} justifyContent={'space-between'}>
-        <IconButton
-          size={'md'}
-          icon={isOpen ? <CloseIcon /> : <HamburgerIcon />}
-          aria-label={'Open Menu'}
-          display={{ md: 'none' }}
-          onClick={isOpen ? onClose : onOpen}
-        />
-        <HStack spacing={8} alignItems={'center'}>
-          <NextLink href="/" passHref>
-            <Box cursor="pointer">
-              <Logo /> <b>Beatbox Competitions</b>
-            </Box>
-          </NextLink>
+    <>
+      <Flex as="header" position="fixed" w="100%" top={0} zIndex={1000}>
+        <Box w="100%" bg={useColorModeValue('gray.100', 'gray.900')} px={4}>
+          <Flex h={16} alignItems={'center'} justifyContent={'space-between'}>
+            <IconButton
+              size={'md'}
+              icon={isOpen ? <CloseIcon /> : <HamburgerIcon />}
+              aria-label={'Open Menu'}
+              display={{ md: 'none' }}
+              onClick={isOpen ? onClose : onOpen}
+            />
+            <HStack spacing={8} alignItems={'center'}>
+              <NextLink href="/" passHref>
+                <Box cursor="pointer">
+                  <Logo /> <b>Beatbox Competitions</b>
+                </Box>
+              </NextLink>
 
-          <HStack as={'nav'} spacing={4} display={{ base: 'none', md: 'flex' }}>
-            {NavItems.map((navItem) => (
-              <NavLink key={navItem.key} href={navItem.href as string}>
-                {navItem.label}
-              </NavLink>
-            ))}
-          </HStack>
-        </HStack>
-        <Flex alignItems={'center'}>
-          <Stack direction={'row'} spacing={3}>
-            <Button onClick={toggleColorMode}>
-              {colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
-            </Button>
-            {!isAuthenticated ? (
-              <Button
-                display={{ base: 'none', md: 'inline-flex' }}
-                fontSize={'sm'}
-                fontWeight={600}
-                color={'white'}
-                bg={'blue.400'}
-                _hover={{
-                  bg: 'blue.300',
-                }}
-                onClick={signin}
-                disabled={isAuthenticating}
+              <HStack
+                as={'nav'}
+                spacing={4}
+                display={{ base: 'none', md: 'flex' }}
               >
-                Sign In
-              </Button>
-            ) : (
-              <Menu>
-                <MenuButton
-                  as={Button}
-                  rounded={'full'}
-                  variant={'link'}
-                  cursor={'pointer'}
-                  minW={0}
-                >
-                  <Avatar
-                    size={'sm'}
-                    src={`https://avatars.dicebear.com/api/male/${shorterAddress}.svg`}
-                  />
-                </MenuButton>
-                <MenuList alignItems={'center'}>
-                  <br />
-                  <Center>
-                    <Avatar
-                      size={'xl'}
-                      src={`https://avatars.dicebear.com/api/male/${shorterAddress}.svg`}
-                    />
-                  </Center>
-                  <br />
-                  <Center>
-                    <p>{shorterAddress}</p>
-                  </Center>
-                  <br />
-                  <MenuDivider />
-                  <MenuItem
-                    color="red"
-                    justifyContent="center"
-                    onClick={signout}
+                {NavItems.map((navItem) => (
+                  <NavLink key={navItem.key} href={navItem.href as string}>
+                    {navItem.label}
+                  </NavLink>
+                ))}
+              </HStack>
+            </HStack>
+            <Flex alignItems={'center'}>
+              <Stack direction={'row'} spacing={3}>
+                <Button onClick={toggleColorMode}>
+                  {colorMode === 'light' ? <MoonIcon /> : <SunIcon />}
+                </Button>
+                {!isAuthenticated ? (
+                  <Button
+                    display={{ base: 'none', md: 'inline-flex' }}
+                    fontSize={'sm'}
+                    fontWeight={600}
+                    color={'white'}
+                    bg={'blue.400'}
+                    _hover={{
+                      bg: 'blue.300',
+                    }}
+                    onClick={signin}
+                    disabled={isAuthenticating}
                   >
-                    Sign Out
-                  </MenuItem>
-                </MenuList>
-              </Menu>
-            )}
-          </Stack>
-        </Flex>
-      </Flex>
+                    Sign In
+                  </Button>
+                ) : (
+                  <Menu>
+                    <MenuButton
+                      as={Button}
+                      rounded={'full'}
+                      variant={'link'}
+                      cursor={'pointer'}
+                      minW={0}
+                    >
+                      <Avatar
+                        size={'sm'}
+                        src={`https://avatars.dicebear.com/api/pixel-art/${shorterAddress}.svg`}
+                      />
+                    </MenuButton>
+                    <MenuList alignItems={'center'}>
+                      <br />
+                      <Center>
+                        <Avatar
+                          size={'xl'}
+                          src={`https://avatars.dicebear.com/api/pixel-art/${shorterAddress}.svg`}
+                        />
+                      </Center>
+                      <br />
+                      <Center>
+                        <p>{shorterAddress}</p>
+                      </Center>
+                      <br />
+                      <MenuDivider />
+                      <MenuItem
+                        color="red"
+                        justifyContent="center"
+                        onClick={signout}
+                      >
+                        Sign Out
+                      </MenuItem>
+                    </MenuList>
+                  </Menu>
+                )}
+              </Stack>
+            </Flex>
+          </Flex>
 
-      {isOpen ? (
-        <Box pb={4} display={{ md: 'none' }}>
-          <Stack as={'nav'} spacing={4}>
-            {NavItems.map((navItem) => (
-              <NavLink key={navItem.key} href={navItem.href as string}>
-                {navItem.label}
-              </NavLink>
-            ))}
-          </Stack>
+          {isOpen ? (
+            <Box pb={4} display={{ md: 'none' }}>
+              <Stack as={'nav'} spacing={4}>
+                {NavItems.map((navItem) => (
+                  <NavLink key={navItem.key} href={navItem.href as string}>
+                    {navItem.label}
+                  </NavLink>
+                ))}
+              </Stack>
+            </Box>
+          ) : null}
         </Box>
-      ) : null}
-    </Box>
+      </Flex>
+    </>
   )
 }

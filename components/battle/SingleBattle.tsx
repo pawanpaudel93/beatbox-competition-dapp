@@ -10,11 +10,12 @@ import {
   HStack,
   Tag,
   TagLabel,
+  Button,
 } from '@chakra-ui/react'
 import dayjs from 'dayjs'
-import { IBattle } from '../../interfaces'
+import { IBattle, IPoint } from '../../interfaces'
 import { VoteModal } from './VoteModal'
-import { getCategoryByState } from '../../utils'
+import { getBeatboxCompetition, getCategoryByState } from '../../utils'
 import { ethers } from 'ethers'
 
 export default function SingleBattle({
@@ -23,14 +24,18 @@ export default function SingleBattle({
   isJudge,
   isVoted,
   fetchVotedBattlesIndices,
+  onOpen,
+  setBattlePoints,
 }: {
   battle: IBattle
   contractAddress: string
   isJudge: boolean
   isVoted: boolean
   fetchVotedBattlesIndices: () => Promise<void>
+  onOpen: () => void
+  setBattlePoints: (battlePoints: IPoint[]) => void
 }) {
-  const AddressZero = ethers.constants.AddressZero
+  const NOT_WINNER = ethers.BigNumber.from('16')
   const Video = ({ videoId }: { videoId: string }) => {
     return (
       <Box
@@ -48,13 +53,13 @@ export default function SingleBattle({
     )
   }
   const Winner = ({ battle }: { battle: IBattle }) => {
-    if (battle.winnerAddress === AddressZero) {
+    if (battle.winnerId.eq(NOT_WINNER)) {
       return (
         <Text>
           Winner: <Tag>Not yet</Tag>
         </Text>
       )
-    } else if (battle.winnerAddress === battle.beatboxerOne.beatboxerAddress) {
+    } else if (battle.winnerId.eq(battle.beatboxerOne.beatboxerId)) {
       return (
         <Text>
           Winner: <Tag>BeatBoxerOne</Tag>
@@ -66,6 +71,17 @@ export default function SingleBattle({
           Winner: <Tag>BeatBoxerTwo</Tag>
         </Text>
       )
+    }
+  }
+
+  const fetchBattlePoints = async (battle: IBattle) => {
+    try {
+      const beatboxCompetition = getBeatboxCompetition(contractAddress)
+      const battlePoints = await beatboxCompetition.getBattlePoints(battle.id)
+      setBattlePoints(battlePoints)
+      onOpen()
+    } catch (err) {
+      console.log(err)
     }
   }
 
@@ -109,13 +125,13 @@ export default function SingleBattle({
               </Box>
               <Box p={0} alignSelf="center">
                 <Text>
-                  Starting Time:{' '}
+                  Start:{' '}
                   {dayjs(battle.startTime.toNumber() * 1000).format(
                     'MMM DD hh:mm A'
                   )}
                 </Text>
                 <Text>
-                  Ending Time:{' '}
+                  End:{' '}
                   {dayjs(battle.endTime.toNumber() * 1000).format(
                     'MMM DD hh:mm A'
                   )}
@@ -126,11 +142,15 @@ export default function SingleBattle({
                 <VoteModal
                   battle={battle}
                   contractAddress={contractAddress}
-                  isDisabled={AddressZero !== battle.winnerAddress || !isJudge}
+                  isDisabled={!battle.winnerId.eq(NOT_WINNER) || !isJudge}
                   fetchVotedBattlesIndices={fetchVotedBattlesIndices}
                   isVoted={isVoted}
                 />
               </Box>
+
+              <Button onClick={(e) => fetchBattlePoints(battle)} mt={6}>
+                View Judge Points
+              </Button>
             </VStack>
           </Center>
         </GridItem>

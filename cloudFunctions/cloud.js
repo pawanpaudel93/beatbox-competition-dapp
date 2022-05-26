@@ -35,3 +35,10 @@ Moralis.Cloud.define('judgeSelectWinners', async (request) => {
     throw new Error('You are not a judge')
   }
 })
+
+Moralis.Cloud.define('judgeVoteCount', async (request) => {
+  const query = new Moralis.Query('WildcardWinners')
+  query.equalTo('contractAddress', request.params.contractAddress)
+  const distinct = await query.distinct('judgeAddress')
+  return distinct.length
+})

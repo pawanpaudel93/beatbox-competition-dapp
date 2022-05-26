@@ -12,13 +12,15 @@ import {
   Center,
   ButtonGroup,
   Box,
+  Alert,
+  AlertIcon,
 } from '@chakra-ui/react'
 import { toast } from 'react-toastify'
-import { FormEvent, useState } from 'react'
+import { FormEvent, useEffect, useState } from 'react'
 import { BBX_COMPETITION_ABI } from '../../constants'
 import { useMoralis } from 'react-moralis'
 import Moralis from 'moralis'
-import { IRoles } from '../../interfaces'
+import { ICompetition, IRoles } from '../../interfaces'
 
 type Item = {
   value: string
@@ -30,12 +32,14 @@ type SelectWinnersProps = {
   wildcards: Moralis.Object<Moralis.Attributes>[]
   roles: IRoles
   contractAddress: string
+  competition: ICompetition
 }
 
 export default function SelectWinners({
   wildcards,
   contractAddress,
   roles,
+  competition,
 }: SelectWinnersProps) {
   const seedData = wildcards.map((wildcard) => ({
     label: wildcard.attributes.name,
@@ -43,6 +47,7 @@ export default function SelectWinners({
     wildcard,
   }))
   const { Moralis, user } = useMoralis()
+  const [votedCount, setVotedCount] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [pickerItems, setPickerItems] = useState<Item[]>(seedData)
@@ -53,6 +58,23 @@ export default function SelectWinners({
   const handleSelectedItemsChange = (selectedItems?: Item[]) => {
     if (selectedItems && selectedItems.length <= 16) {
       setSelectedItems(selectedItems)
+    }
+  }
+
+  useEffect(() => {
+    if (contractAddress) {
+      fetchVotedJudgeCount()
+    }
+  }, [contractAddress])
+
+  const fetchVotedJudgeCount = async () => {
+    try {
+      const count = await Moralis.Cloud.run('judgeVoteCount', {
+        contractAddress: contractAddress.toLowerCase(),
+      })
+      setVotedCount(count)
+    } catch (error) {
+      console.log(error.message)
     }
   }
 
@@ -118,11 +140,24 @@ export default function SelectWinners({
 
   return (
     <Box>
-      <div className="flex justify-end">
-        <Button color="blue" onClick={onOpen}>
-          Select winners
-        </Button>
-      </div>
+      {(roles.isJudge ||
+        (roles.isAdmin &&
+          competition?.judgeCount?.toString() === votedCount.toString())) && (
+        <div className="flex justify-end">
+          <Button color="blue" onClick={onOpen}>
+            Select winners
+          </Button>
+        </div>
+      )}
+      {roles.isAdmin &&
+        competition.judgeCount?.toString() !== votedCount.toString() && (
+          <Alert status="info">
+            <AlertIcon />
+            <strong>
+              Only {votedCount}/{competition.judgeCount?.toString()} have voted!
+            </strong>
+          </Alert>
+        )}
       <Modal isOpen={isOpen} onClose={onClose} scrollBehavior="inside">
         <ModalOverlay />
         <ModalContent>
@@ -132,6 +167,7 @@ export default function SelectWinners({
             <Container padding={2}>
               <form onSubmit={onSubmit}>
                 <CUIAutoComplete
+                  disableCreateItem={true}
                   label="Choose preferred wildcards"
                   placeholder="Type a wildcard beatboxer name"
                   onCreateItem={handleCreateItem}

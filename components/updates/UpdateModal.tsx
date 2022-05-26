@@ -25,7 +25,6 @@ import { useState } from 'react'
 import { useNewMoralisObject } from 'react-moralis'
 import { useRouter } from 'next/router'
 import { toast } from 'react-toastify'
-import Moralis from 'moralis/types'
 
 export default function UpdateModal() {
   const { isOpen, onOpen, onClose } = useDisclosure()

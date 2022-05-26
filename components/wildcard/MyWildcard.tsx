@@ -29,9 +29,10 @@ export default function MyWilcard({
 }: MyWilcardProps) {
   const { user } = useMoralis()
   const competitionState = competition.competitionState
-  const wildcardStarted = competitionState === CompetitionState.WILDCARD
+  const wildcardStarted =
+    competitionState === CompetitionState.WILDCARD_SUBMISSION
   const wildcardEnded =
-    competitionState !== CompetitionState.WILDCARD &&
+    competitionState !== CompetitionState.WILDCARD_SUBMISSION &&
     competitionState !== CompetitionState.NOT_STARTED
 
   const isDisabled = !wildcardStarted || wildcardEnded

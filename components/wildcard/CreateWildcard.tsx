@@ -39,8 +39,9 @@ export default function CreateWildcard({ competition }: CreateWildcardProps) {
   const router = useRouter()
   const { contractAddress } = router.query
   const wildcardStarted =
-    competition.competitionState >= CompetitionState.WILDCARD
-  const wildcardEnded = competition.competitionState > CompetitionState.WILDCARD
+    competition.competitionState >= CompetitionState.WILDCARD_SUBMISSION
+  const wildcardEnded =
+    competition.competitionState > CompetitionState.WILDCARD_SUBMISSION
 
   const isDisabled = !wildcardStarted || wildcardEnded
 

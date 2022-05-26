@@ -14,6 +14,7 @@ import { BBX_COMPETITION_ABI, CompetitionState } from '../../constants'
 import { useMoralis } from 'react-moralis'
 import { toast } from 'react-toastify'
 import { ChangeEvent, useEffect, useState } from 'react'
+import { getBeatboxCompetition } from '../../utils'
 
 interface SettingsProps {
   competition: ICompetition
@@ -41,15 +42,12 @@ export default function Settings({
 
   const fetchSubscriptionId = async () => {
     try {
-      const options = {
-        contractAddress: contractAddress as string,
-        abi: BBX_COMPETITION_ABI,
-        functionName: 'subscriptionId',
-        params: [],
-      }
-      const _subscriptionId = (await Moralis.executeFunction(
-        options
-      )) as unknown as number
+      const beatboxCompetition = getBeatboxCompetition(
+        contractAddress as string
+      )
+
+      const _subscriptionId =
+        (await beatboxCompetition.subscriptionId()) as unknown as string
       console.log(_subscriptionId)
       setSubscriptionId(_subscriptionId)
     } catch (error) {
@@ -138,7 +136,8 @@ export default function Settings({
             colorScheme="red"
             onClick={endWildcard}
             isDisabled={
-              competition.competitionState > CompetitionState.WILDCARD ||
+              competition.competitionState >
+                CompetitionState.WILDCARD_SUBMISSION ||
               competition.competitionState == CompetitionState.NOT_STARTED
             }
             isLoading={isLoading.end}

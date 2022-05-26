@@ -303,6 +303,25 @@ export const BBX_COMPETITION_ABI = [
         "inputs": [
             {
                 "indexed": false,
+                "internalType": "uint256",
+                "name": "battleId",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "votedBy",
+                "type": "address"
+            }
+        ],
+        "name": "BattleVoted",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
                 "internalType": "address",
                 "name": "beatboxerAddress",
                 "type": "address"
@@ -474,9 +493,9 @@ export const BBX_COMPETITION_ABI = [
             },
             {
                 "indexed": false,
-                "internalType": "address",
-                "name": "winnerAddress",
-                "type": "address"
+                "internalType": "uint256",
+                "name": "winnerId",
+                "type": "uint256"
             }
         ],
         "name": "WinnerSelected",
@@ -507,19 +526,6 @@ export const BBX_COMPETITION_ABI = [
                 "internalType": "bytes32",
                 "name": "",
                 "type": "bytes32"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "MAX_JUDGES",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
             }
         ],
         "stateMutability": "view",
@@ -617,14 +623,14 @@ export const BBX_COMPETITION_ABI = [
                         "type": "bytes11"
                     },
                     {
-                        "internalType": "address",
-                        "name": "beatboxerAddress",
-                        "type": "address"
-                    },
-                    {
                         "internalType": "uint8",
                         "name": "score",
                         "type": "uint8"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "beatboxerId",
+                        "type": "uint256"
                     },
                     {
                         "internalType": "uint256",
@@ -644,14 +650,14 @@ export const BBX_COMPETITION_ABI = [
                         "type": "bytes11"
                     },
                     {
-                        "internalType": "address",
-                        "name": "beatboxerAddress",
-                        "type": "address"
-                    },
-                    {
                         "internalType": "uint8",
                         "name": "score",
                         "type": "uint8"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "beatboxerId",
+                        "type": "uint256"
                     },
                     {
                         "internalType": "uint256",
@@ -664,9 +670,9 @@ export const BBX_COMPETITION_ABI = [
                 "type": "tuple"
             },
             {
-                "internalType": "address",
-                "name": "winnerAddress",
-                "type": "address"
+                "internalType": "uint256",
+                "name": "winnerId",
+                "type": "uint256"
             },
             {
                 "internalType": "uint256",
@@ -823,14 +829,14 @@ export const BBX_COMPETITION_ABI = [
                                 "type": "bytes11"
                             },
                             {
-                                "internalType": "address",
-                                "name": "beatboxerAddress",
-                                "type": "address"
-                            },
-                            {
                                 "internalType": "uint8",
                                 "name": "score",
                                 "type": "uint8"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "beatboxerId",
+                                "type": "uint256"
                             },
                             {
                                 "internalType": "uint256",
@@ -850,14 +856,14 @@ export const BBX_COMPETITION_ABI = [
                                 "type": "bytes11"
                             },
                             {
-                                "internalType": "address",
-                                "name": "beatboxerAddress",
-                                "type": "address"
-                            },
-                            {
                                 "internalType": "uint8",
                                 "name": "score",
                                 "type": "uint8"
+                            },
+                            {
+                                "internalType": "uint256",
+                                "name": "beatboxerId",
+                                "type": "uint256"
                             },
                             {
                                 "internalType": "uint256",
@@ -870,9 +876,9 @@ export const BBX_COMPETITION_ABI = [
                         "type": "tuple"
                     },
                     {
-                        "internalType": "address",
-                        "name": "winnerAddress",
-                        "type": "address"
+                        "internalType": "uint256",
+                        "name": "winnerId",
+                        "type": "uint256"
                     },
                     {
                         "internalType": "uint256",
@@ -901,6 +907,77 @@ export const BBX_COMPETITION_ABI = [
                     }
                 ],
                 "internalType": "struct CompetitionBase.Battle[]",
+                "name": "",
+                "type": "tuple[]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "battleId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getBattlePoints",
+        "outputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "uint8",
+                        "name": "originality",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "uint8",
+                        "name": "pitchAndTiming",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "uint8",
+                        "name": "complexity",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "uint8",
+                        "name": "enjoymentOfListening",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "uint8",
+                        "name": "video",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "uint8",
+                        "name": "audio",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "uint8",
+                        "name": "battle",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "uint8",
+                        "name": "extraPoint",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "votedBy",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "votedFor",
+                        "type": "uint256"
+                    }
+                ],
+                "internalType": "struct CompetitionBase.Point[]",
                 "name": "",
                 "type": "tuple[]"
             }
@@ -1171,9 +1248,9 @@ export const BBX_COMPETITION_ABI = [
                 "type": "address"
             },
             {
-                "internalType": "address",
+                "internalType": "uint256",
                 "name": "votedFor",
-                "type": "address"
+                "type": "uint256"
             }
         ],
         "stateMutability": "view",
@@ -1324,11 +1401,6 @@ export const BBX_COMPETITION_ABI = [
                 "type": "string"
             },
             {
-                "internalType": "enum CompetitionBase.CompetitionState",
-                "name": "state",
-                "type": "uint8"
-            },
-            {
                 "internalType": "bytes11",
                 "name": "ytVideoIdOne",
                 "type": "bytes11"
@@ -1453,9 +1525,9 @@ export const BBX_COMPETITION_ABI = [
                         "type": "address"
                     },
                     {
-                        "internalType": "address",
+                        "internalType": "uint256",
                         "name": "votedFor",
-                        "type": "address"
+                        "type": "uint256"
                     }
                 ],
                 "internalType": "struct CompetitionBase.Point",
@@ -1510,9 +1582,9 @@ export const BBX_COMPETITION_ABI = [
                         "type": "address"
                     },
                     {
-                        "internalType": "address",
+                        "internalType": "uint256",
                         "name": "votedFor",
-                        "type": "address"
+                        "type": "uint256"
                     }
                 ],
                 "internalType": "struct CompetitionBase.Point",
@@ -1558,10 +1630,11 @@ export const BBX_COMPETITION_ABI = [
 ]
 export const CompetitionState = {
     NOT_STARTED: 0,
-    WILDCARD: 1,
-    TOP16: 2,
-    TOP8: 3,
-    SEMIFINAL: 4,
-    FINAL: 5,
-    COMPLETED: 6
+    WILDCARD_SUBMISSION: 1,
+    WILDCARD_SELECTION: 2,
+    TOP16: 3,
+    TOP8: 4,
+    SEMIFINAL: 5,
+    FINAL: 6,
+    COMPLETED: 7
 }

@@ -39,7 +39,6 @@ export default function CompetitionInfo({ competition }: CompetitionInfoProps) {
   }, [competition.description])
 
   const changeDescription = async () => {
-    // e.preventDefault()
     try {
       setIsLoading(true)
       const options = {
@@ -52,9 +51,18 @@ export default function CompetitionInfo({ competition }: CompetitionInfoProps) {
       }
       const setDescriptionTx = await Moralis.executeFunction(options)
       await setDescriptionTx.wait()
+      const Competition = Moralis.Object.extend('Competition')
+      const query = new Moralis.Query(Competition)
+      query.equalTo('contractAddress', contractAddress)
+      const competition = await query.first()
+      if (competition) {
+        competition.set('description', description)
+        await competition.save()
+      }
       toast.success('Description changed!')
     } catch (error) {
       toast.error(error.message)
+      setDescription(competition.description)
     }
     setIsLoading(false)
   }

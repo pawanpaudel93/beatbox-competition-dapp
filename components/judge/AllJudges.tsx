@@ -6,7 +6,6 @@ import {
   Th,
   Td,
   TableContainer,
-  Box,
   Alert,
   AlertIcon,
   Center,
@@ -20,7 +19,6 @@ import { useMoralis } from 'react-moralis'
 import { BBX_COMPETITION_ABI } from '../../constants'
 import { toast } from 'react-toastify'
 import JudgeSelectedWilcards from './JudgeSelectedWilcards'
-import competitions from '../../pages/competitions'
 
 export default function AllJudges({ isAdmin }: { isAdmin: boolean }) {
   const router = useRouter()

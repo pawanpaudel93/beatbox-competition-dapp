@@ -8,17 +8,19 @@ import {
   TabPanels,
   TabPanel,
   Center,
+  Flex,
 } from '@chakra-ui/react'
 import { ethers } from 'ethers'
 import Wildcards from '../../components/wildcard/Wildcards'
 import Judges from '../../components/judge/Judges'
 import CompetitionInfo from '../../components/competition/CompetitionInfo'
 import { BBX_COMPETITION_ABI } from '../../constants'
-import { ICompetition } from '../../interfaces'
+import { ICompetition, IRoles } from '../../interfaces'
 import { useMoralis } from 'react-moralis'
 import Battles from '../../components/battle/Battles'
 import Settings from '../../components/setting/Settings'
 import Updates from '../../components/updates/Updates'
+import { getBeatboxCompetition } from '../../utils'
 
 const ContractDetail: NextPage = () => {
   const router = useRouter()
@@ -28,8 +30,9 @@ const ContractDetail: NextPage = () => {
     description: '',
     imageURI: '',
     competitionState: 0,
+    judgeCount: 0,
   })
-  const [roles, setRoles] = useState<{ [key: string]: boolean }>({
+  const [roles, setRoles] = useState<IRoles>({
     isAdmin: false,
     isHelper: false,
     isJudge: false,
@@ -39,6 +42,7 @@ const ContractDetail: NextPage = () => {
   useEffect(() => {
     if (contractAddress) {
       fetchMetaData()
+      fetchJudgeCount()
     }
     if (contractAddress && user?.get('ethAddress')) {
       fetchRoles()
@@ -47,15 +51,10 @@ const ContractDetail: NextPage = () => {
 
   const fetchMetaData = async () => {
     try {
-      const options = {
-        contractAddress: contractAddress as string,
-        functionName: 'metaData',
-        abi: BBX_COMPETITION_ABI,
-        params: {},
-      }
-      const metadata = (await Moralis.executeFunction(
-        options
-      )) as unknown as ICompetition
+      const beatboxCompetition = getBeatboxCompetition(
+        contractAddress as string
+      )
+      const metadata = await beatboxCompetition.metaData()
       setCompetition({
         name: ethers.utils.parseBytes32String(metadata.name),
         description: metadata.description,
@@ -68,21 +67,36 @@ const ContractDetail: NextPage = () => {
   }
 
   const fetchRoles = async () => {
-    const options = {
-      contractAddress: contractAddress as string,
-      functionName: 'getRoles',
-      abi: BBX_COMPETITION_ABI,
-      params: {
-        _address: user?.get('ethAddress') as string,
-      },
+    try {
+      const options = {
+        contractAddress: contractAddress as string,
+        functionName: 'getRoles',
+        abi: BBX_COMPETITION_ABI,
+        params: {
+          _address: user?.get('ethAddress') as string,
+        },
+      }
+      const _roles = (await Moralis.executeFunction(options)) as boolean[]
+      setRoles({
+        isAdmin: _roles[0],
+        isHelper: _roles[1],
+        isJudge: _roles[2],
+      })
+    } catch (e) {
+      console.log(e)
     }
-    const _roles = (await Moralis.executeFunction(options)) as boolean[]
-    setRoles({
-      isAdmin: _roles[0],
-      isHelper: _roles[1],
-      isJudge: _roles[2],
-    })
-    console.log(roles)
+  }
+
+  const fetchJudgeCount = async () => {
+    try {
+      const beatboxCompetition = getBeatboxCompetition(
+        contractAddress as string
+      )
+      const _judgeCount = await beatboxCompetition.judgeCount()
+      setCompetition((prevState) => ({ ...prevState, judgeCount: _judgeCount }))
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   return (
@@ -116,7 +130,7 @@ const ContractDetail: NextPage = () => {
           />
         </TabPanel>
         <TabPanel>
-          <Updates />
+          <Updates roles={roles} />
         </TabPanel>
         {roles.isAdmin && (
           <TabPanel>

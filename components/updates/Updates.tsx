@@ -16,9 +16,9 @@ import UpdateDetailModal from './UpdateDetailModal'
 import { useMoralisQuery } from 'react-moralis'
 import dayjs from 'dayjs'
 import { EditIcon } from '@chakra-ui/icons'
-import competitions from '../../pages/competitions'
+import { IRoles } from '../../interfaces'
 
-export default function Updates() {
+export default function Updates({ roles }: { roles: IRoles }) {
   const {
     data: updates,
     isFetching,
@@ -61,7 +61,7 @@ export default function Updates() {
 
   return (
     <Box padding={3}>
-      <UpdateModal />
+      {(roles.isAdmin || roles.isJudge || roles.isHelper) && <UpdateModal />}
       <VStack
         padding={3}
         divider={<StackDivider borderColor="gray.200" />}

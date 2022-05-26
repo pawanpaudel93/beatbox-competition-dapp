@@ -21,7 +21,10 @@ function MyApp({ Component, pageProps }: AppProps) {
         <ChakraProvider>
           <NextNProgress />
           <NavBar />
-          <div className="md:px-6 py-2 min-h-screen">
+          <div
+            className="md:px-6 py-2 min-h-screen"
+            style={{ marginTop: '70px' }}
+          >
             <Component {...pageProps} />
             <ToastContainer />
           </div>

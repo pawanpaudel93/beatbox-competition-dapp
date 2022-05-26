@@ -46,7 +46,11 @@ export default function Wildcards({ competition, roles }: WildcardsProps) {
           {wildcards.isFetching ? (
             <Box>Fetching selected wildcards...</Box>
           ) : (
-            <WildcardWinners allWildcards={wildcards.data} roles={roles} />
+            <WildcardWinners
+              competition={competition}
+              allWildcards={wildcards.data}
+              roles={roles}
+            />
           )}
         </TabPanel>
         <TabPanel>
