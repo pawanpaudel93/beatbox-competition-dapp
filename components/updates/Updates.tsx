@@ -17,17 +17,27 @@ import { useMoralisQuery } from 'react-moralis'
 import dayjs from 'dayjs'
 import { EditIcon } from '@chakra-ui/icons'
 import { IRoles } from '../../interfaces'
+import { useRouter } from 'next/router'
 
 export default function Updates({ roles }: { roles: IRoles }) {
+  const router = useRouter()
+  const { contractAddress } = router.query
   const {
     data: updates,
     isFetching,
     isLoading,
     error,
-  } = useMoralisQuery('Update', (query) => query.descending('createdAt'), [], {
-    autoFetch: true,
-    live: true,
-  })
+  } = useMoralisQuery(
+    'Update',
+    (query) =>
+      query.descending('createdAt') &&
+      query.equalTo('contractAddress', contractAddress),
+    [contractAddress],
+    {
+      autoFetch: true,
+      live: true,
+    }
+  )
 
   if (isLoading || isFetching) {
     return (
