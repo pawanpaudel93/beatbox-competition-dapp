@@ -3,6 +3,12 @@ import { BBX_COMPETITION_ABI } from "../constants"
 
 export const getCategoryByState = (state: number) => {
     switch (state) {
+        case 0:
+            return "Wildcard submissions is not started"
+        case 1:
+            return "Accepting wildcard submissions"
+        case 2:
+            return "Wildcards Selections"
         case 3:
             return 'Top 16'
         case 4:
@@ -11,8 +17,6 @@ export const getCategoryByState = (state: number) => {
             return 'Semi Final'
         case 6:
             return 'Final'
-        default:
-            return 'Not Started'
     }
 }
 

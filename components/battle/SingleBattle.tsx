@@ -105,8 +105,8 @@ export default function SingleBattle({
 
   return (
     <HStack align="center" p={2}>
-      <Tag colorScheme="blue" variant="outline">
-        <TagLabel fontSize="xl" p={1}>
+      <Tag size="xl" colorScheme="blue" variant="outline">
+        <TagLabel fontSize="xl" p={2}>
           {battle.id + 1}
         </TagLabel>
       </Tag>

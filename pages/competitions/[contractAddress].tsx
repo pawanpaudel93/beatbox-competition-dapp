@@ -29,7 +29,6 @@ const ContractDetail: NextPage = () => {
     description: '',
     imageURI: '',
     competitionState: 0,
-    judgeCount: 0,
   })
   const [roles, setRoles] = useState<IRoles>({
     isAdmin: false,
@@ -41,7 +40,6 @@ const ContractDetail: NextPage = () => {
   useEffect(() => {
     if (contractAddress) {
       fetchMetaData()
-      fetchJudgeCount()
     }
     if (contractAddress && user?.get('ethAddress')) {
       fetchRoles()
@@ -81,18 +79,6 @@ const ContractDetail: NextPage = () => {
         isHelper: _roles[1],
         isJudge: _roles[2],
       })
-    } catch (e) {
-      console.log(e)
-    }
-  }
-
-  const fetchJudgeCount = async () => {
-    try {
-      const beatboxCompetition = getBeatboxCompetition(
-        contractAddress as string
-      )
-      const _judgeCount = await beatboxCompetition.judgeCount()
-      setCompetition((prevState) => ({ ...prevState, judgeCount: _judgeCount }))
     } catch (e) {
       console.log(e)
     }

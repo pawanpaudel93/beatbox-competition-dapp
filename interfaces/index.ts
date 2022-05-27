@@ -14,7 +14,6 @@ export interface ICompetition {
     creator?: string
     competitionId?: BigNumber
     competitionState: number
-    judgeCount?: number
 }
 
 export interface IBeatboxer {

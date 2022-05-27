@@ -21,6 +21,7 @@ import { BBX_COMPETITION_ABI } from '../../constants'
 import { useMoralis } from 'react-moralis'
 import Moralis from 'moralis'
 import { ICompetition, IRoles } from '../../interfaces'
+import { getBeatboxCompetition } from '../../utils'
 
 type Item = {
   value: string
@@ -48,6 +49,7 @@ export default function SelectWinners({
   }))
   const { Moralis, user } = useMoralis()
   const [votedCount, setVotedCount] = useState(0)
+  const [judgeCount, setJudgeCount] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [pickerItems, setPickerItems] = useState<Item[]>(seedData)
@@ -61,9 +63,22 @@ export default function SelectWinners({
     }
   }
 
+  const fetchJudgeCount = async () => {
+    try {
+      const beatboxCompetition = getBeatboxCompetition(
+        contractAddress as string
+      )
+      const _judgeCount = (await beatboxCompetition.judgeCount()) as number
+      setJudgeCount(_judgeCount)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
   useEffect(() => {
     if (contractAddress) {
       fetchVotedJudgeCount()
+      fetchJudgeCount()
     }
   }, [contractAddress])
 
@@ -110,7 +125,11 @@ export default function SelectWinners({
         onClose()
       } catch (e) {
         console.log(e)
-        toast.error(e.message)
+        if (e?.data?.message) {
+          toast.error(e.data.message)
+        } else {
+          toast.error(e.message)
+        }
       }
     } else if (roles.isJudge) {
       try {
@@ -141,23 +160,21 @@ export default function SelectWinners({
   return (
     <Box>
       {(roles.isJudge ||
-        (roles.isAdmin &&
-          competition?.judgeCount?.toString() === votedCount.toString())) && (
+        (roles.isAdmin && judgeCount.toString() === votedCount.toString())) && (
         <div className="flex justify-end">
           <Button color="blue" onClick={onOpen}>
             Select winners
           </Button>
         </div>
       )}
-      {roles.isAdmin &&
-        competition.judgeCount?.toString() !== votedCount.toString() && (
-          <Alert status="info">
-            <AlertIcon />
-            <strong>
-              Only {votedCount}/{competition.judgeCount?.toString()} have voted!
-            </strong>
-          </Alert>
-        )}
+      {roles.isAdmin && judgeCount?.toString() !== votedCount.toString() && (
+        <Alert status="info">
+          <AlertIcon />
+          <strong>
+            Only {votedCount}/{judgeCount?.toString()} have voted!
+          </strong>
+        </Alert>
+      )}
       <Modal isOpen={isOpen} onClose={onClose} scrollBehavior="inside">
         <ModalOverlay />
         <ModalContent>

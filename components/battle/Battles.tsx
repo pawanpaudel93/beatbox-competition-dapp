@@ -1,7 +1,7 @@
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from '@chakra-ui/react'
 import { useMoralis } from 'react-moralis'
 import { useRouter } from 'next/router'
-import { ethers } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 import { useEffect, useState } from 'react'
 import StartBattle from './StartBattle'
 import AllBattles from './AllBattles'
@@ -11,6 +11,7 @@ import { BBX_COMPETITION_ABI } from '../../constants'
 import { IBattle } from '../../interfaces'
 import { getBeatboxCompetition } from '../../utils'
 import Moralis from 'moralis'
+import { toast } from 'react-toastify'
 interface BattlesProps {
   competition: ICompetition
   isJudge: boolean
@@ -33,6 +34,7 @@ export default function Battles({
     Moralis.Object<Moralis.Attributes>[]
   >([])
   const [judges, setJudges] = useState({})
+  const [startBlockNumber, setStartBlockNumber] = useState(0)
 
   const fetchVotedBattlesIndices = async () => {
     try {
@@ -130,6 +132,14 @@ export default function Battles({
     }
   }
 
+  const setLatestBlockNumber = async (beatboxCompetition: ethers.Contract) => {
+    try {
+      setStartBlockNumber(await beatboxCompetition.provider.getBlockNumber())
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   useEffect(() => {
     if (contractAddress && user?.get('ethAddress')) {
       fetchVotedBattlesIndices()
@@ -141,6 +151,21 @@ export default function Battles({
       fetchAllBeatboxers()
       fetchAllJudges()
       fetchAllBattles()
+
+      const beatboxCompetition = getBeatboxCompetition(
+        contractAddress as string
+      )
+      beatboxCompetition.on('WinnerSelected', (battleId, winnerId, event) => {
+        console.log(battleId, winnerId, event)
+        if (event.blockNumber > startBlockNumber) {
+          toast.success('Latest battle winner selected')
+          fetchAllBattles()
+          setLatestBlockNumber(beatboxCompetition)
+        }
+      })
+      return () => {
+        beatboxCompetition.removeAllListeners()
+      }
     }
   }, [contractAddress])
 

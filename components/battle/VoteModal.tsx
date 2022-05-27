@@ -84,6 +84,7 @@ export function VoteModal({
           },
         },
       }
+
       const voteBattleTx = await Moralis.executeFunction(options)
       await voteBattleTx.wait()
       toast.success('Voted Successfully')
@@ -92,7 +93,11 @@ export function VoteModal({
       fetchVotedBattlesIndices()
     } catch (error) {
       setIsLoading(false)
-      toast.error(error.message)
+      if (error?.data?.message) {
+        toast.error(error.data.message)
+      } else {
+        toast.error(error.message)
+      }
     }
   }
 
@@ -153,7 +158,28 @@ export function VoteModal({
                       onChange={(valueString: string) =>
                         setPointOne({
                           ...pointOne,
-                          originality: parseInt(valueString),
+                          pitchAndTiming: parseInt(valueString),
+                        })
+                      }
+                    >
+                      <NumberInputField />
+                      <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                      </NumberInputStepper>
+                    </NumberInput>
+                  </FormControl>
+
+                  <FormControl mt={2}>
+                    <FormLabel>Complexity</FormLabel>
+                    <NumberInput
+                      defaultValue={pointOne.complexity}
+                      min={0}
+                      max={1}
+                      onChange={(valueString: string) =>
+                        setPointOne({
+                          ...pointOne,
+                          complexity: parseInt(valueString),
                         })
                       }
                     >
@@ -306,6 +332,27 @@ export function VoteModal({
                         setPointTwo({
                           ...pointTwo,
                           pitchAndTiming: parseInt(valueString),
+                        })
+                      }
+                    >
+                      <NumberInputField />
+                      <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                      </NumberInputStepper>
+                    </NumberInput>
+                  </FormControl>
+
+                  <FormControl mt={2}>
+                    <FormLabel>Complexity</FormLabel>
+                    <NumberInput
+                      defaultValue={pointTwo.complexity}
+                      min={0}
+                      max={1}
+                      onChange={(valueString: string) =>
+                        setPointTwo({
+                          ...pointTwo,
+                          complexity: parseInt(valueString),
                         })
                       }
                     >

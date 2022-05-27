@@ -62,13 +62,13 @@ export default function CreateBattle({
     beatboxerOne: '',
     beatboxerTwo: '',
   })
-  const [state, setState] = useState(0)
   const [winningAmount, setWinningAmount] = useState(0)
   const [battleStart, setBattleStart] = useState(today)
   const [battleEnd, setBattleEnd] = useState(today)
   const [videoUrls, setVideoUrls] = useState<string[]>(['', ''])
   const [battles, setBattles] = useState<IBattle[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [startBlockNumber, setStartBlockNumber] = useState(0)
   const { Moralis } = useMoralis()
   const router = useRouter()
   const { contractAddress } = router.query
@@ -100,9 +100,27 @@ export default function CreateBattle({
     return ethers.utils.formatBytes32String(videoId).slice(0, 24)
   }
 
+  const setLatestBlockNumber = async (beatboxCompetition: ethers.Contract) => {
+    try {
+      setStartBlockNumber(await beatboxCompetition.provider.getBlockNumber())
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   useEffect(() => {
     if (contractAddress) {
       fetchBattles()
+      const beatboxCompetition = getBeatboxCompetition(
+        contractAddress as string
+      )
+      beatboxCompetition.on('OpponentsSelected', (state, event) => {
+        if (event.blockNumber > startBlockNumber) {
+          toast.success('Latest round battles has been selected')
+          fetchBattles()
+          setLatestBlockNumber(beatboxCompetition)
+        }
+      })
     }
   }, [contractAddress])
 
@@ -169,7 +187,6 @@ export default function CreateBattle({
 
   const clearForm = () => {
     setName('')
-    setState(0)
     setVideoUrls(['', ''])
     setWinningAmount(0)
     setBattleStart(today)
@@ -211,7 +228,7 @@ export default function CreateBattle({
             onChange={(e) => setName(e.target.value)}
           />
         </FormControl>
-        <FormControl padding={3} isRequired>
+        <FormControl padding={3}>
           <FormLabel htmlFor="battle-state">Competition State</FormLabel>
           <Tag colorScheme="blue" variant="solid">
             {getCategoryByState(competition.competitionState)}

@@ -1,4 +1,4 @@
-export const COMPETITION_FACTORY_ADDRESS = "0x289FB2B6BB1a5bF78edbae2d29370474fAD31427"
+export const COMPETITION_FACTORY_ADDRESS = "0xaef0d2cF47B35410eb8fb33316142FDeD8A2aDFb"
 export const COMPETITION_FACTORY_CREATOR = "0xd23e883540cC6BA2407cB3b793c6c8a92654C571"
 export const COMPETITION_FACTORY_ABI = [
     {
@@ -412,6 +412,19 @@ export const BBX_COMPETITION_ABI = [
         "inputs": [
             {
                 "indexed": false,
+                "internalType": "enum CompetitionBase.CompetitionState",
+                "name": "state",
+                "type": "uint8"
+            }
+        ],
+        "name": "OpponentsSelected",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
                 "internalType": "uint256",
                 "name": "requestId",
                 "type": "uint256"
@@ -671,6 +684,11 @@ export const BBX_COMPETITION_ABI = [
                 "type": "uint256"
             },
             {
+                "internalType": "uint256",
+                "name": "stateBattleId",
+                "type": "uint256"
+            },
+            {
                 "internalType": "enum CompetitionBase.CompetitionState",
                 "name": "state",
                 "type": "uint8"
@@ -874,6 +892,11 @@ export const BBX_COMPETITION_ABI = [
                     {
                         "internalType": "uint256",
                         "name": "winningAmount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "stateBattleId",
                         "type": "uint256"
                     },
                     {

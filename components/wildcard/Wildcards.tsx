@@ -1,4 +1,14 @@
-import { Tabs, TabList, Tab, TabPanels, TabPanel, Box } from '@chakra-ui/react'
+import {
+  Tabs,
+  TabList,
+  Tab,
+  TabPanels,
+  TabPanel,
+  Box,
+  Text,
+  Center,
+  Spinner,
+} from '@chakra-ui/react'
 import CreateWildcard from './CreateWildcard'
 import AllWildcards from './AllWildcards'
 import MyWildcard from './MyWildcard'
@@ -40,11 +50,35 @@ export default function Wildcards({ competition, roles }: WildcardsProps) {
           <CreateWildcard competition={competition} />
         </TabPanel>
         <TabPanel>
-          <AllWildcards wildcards={wildcards} />
+          {wildcards.isFetching || wildcards.isLoading ? (
+            <Center>
+              <Spinner
+                thickness="4px"
+                speed="0.65s"
+                emptyColor="gray.200"
+                color="blue.500"
+                size="xl"
+                m={4}
+              />
+              <Text>Fetching wildcards...</Text>
+            </Center>
+          ) : (
+            <AllWildcards wildcards={wildcards} />
+          )}
         </TabPanel>
         <TabPanel>
-          {wildcards.isFetching ? (
-            <Box>Fetching selected wildcards...</Box>
+          {wildcards.isFetching || wildcards.isLoading ? (
+            <Center>
+              <Spinner
+                thickness="4px"
+                speed="0.65s"
+                emptyColor="gray.200"
+                color="blue.500"
+                size="xl"
+                m={4}
+              />
+              <Text>Fetching wildcards...</Text>
+            </Center>
           ) : (
             <WildcardWinners
               competition={competition}
