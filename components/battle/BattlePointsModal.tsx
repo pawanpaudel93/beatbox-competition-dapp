@@ -20,8 +20,9 @@ import {
   Center,
   Divider,
   Box,
+  Spacer,
 } from '@chakra-ui/react'
-import { IPoint } from '../../interfaces'
+import { IBattle, IPoint } from '../../interfaces'
 import Moralis from 'moralis'
 
 interface BattlePointsModalProps {
@@ -29,6 +30,7 @@ interface BattlePointsModalProps {
   onClose: () => void
   battlePoints: IPoint[]
   beatboxers: Moralis.Object<Moralis.Attributes>[]
+  battle: IBattle
   judges: { [key: string]: string }
 }
 
@@ -37,6 +39,7 @@ export default function BattlePointsModal({
   onClose,
   battlePoints,
   beatboxers,
+  battle,
   judges,
 }: BattlePointsModalProps) {
   const getTotalPoints = (point: IPoint) => {
@@ -47,6 +50,7 @@ export default function BattlePointsModal({
       point.enjoymentOfListening +
       point.video +
       point.audio +
+      point.battle +
       point.extraPoint
     )
   }
@@ -85,6 +89,10 @@ export default function BattlePointsModal({
             <Tr>
               <Td>Audio</Td>
               <Td>{point.audio}</Td>
+            </Tr>
+            <Tr>
+              <Td>Battle</Td>
+              <Td>{point.battle}</Td>
             </Tr>
             <Tr>
               <Td>Extra Point</Td>
@@ -158,7 +166,18 @@ export default function BattlePointsModal({
         <ModalContent>
           <ModalHeader>Battle Points</ModalHeader>
           <ModalCloseButton />
-          <ModalBody>{pointsTable}</ModalBody>
+          <ModalBody>
+            <HStack>
+              <Text>
+                Like Count: {battle.beatboxerOne.likeCount.toString()}
+              </Text>
+              <Spacer />
+              <Text>
+                Like Count: {battle.beatboxerTwo.likeCount.toString()}
+              </Text>
+            </HStack>
+            {pointsTable}
+          </ModalBody>
           <ModalFooter>
             <Button colorScheme="blue" mr={3} onClick={onClose}>
               Close

@@ -8,7 +8,6 @@ import {
   TabPanels,
   TabPanel,
   Center,
-  Flex,
 } from '@chakra-ui/react'
 import { ethers } from 'ethers'
 import Wildcards from '../../components/wildcard/Wildcards'
@@ -113,7 +112,7 @@ const ContractDetail: NextPage = () => {
       <TabPanels>
         <TabPanel>
           <Center>
-            <CompetitionInfo competition={competition} />
+            <CompetitionInfo competition={competition} roles={roles} />
           </Center>
         </TabPanel>
         <TabPanel>

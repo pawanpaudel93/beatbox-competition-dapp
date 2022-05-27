@@ -1,5 +1,5 @@
-export const COMPETITION_FACTORY_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
-export const COMPETITION_FACTORY_CREATOR = "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"
+export const COMPETITION_FACTORY_ADDRESS = "0x289FB2B6BB1a5bF78edbae2d29370474fAD31427"
+export const COMPETITION_FACTORY_CREATOR = "0xd23e883540cC6BA2407cB3b793c6c8a92654C571"
 export const COMPETITION_FACTORY_ABI = [
     {
         "inputs": [
@@ -411,6 +411,19 @@ export const BBX_COMPETITION_ABI = [
         "anonymous": false,
         "inputs": [
             {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "requestId",
+                "type": "uint256"
+            }
+        ],
+        "name": "RandomNumberRequested",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
                 "indexed": true,
                 "internalType": "bytes32",
                 "name": "role",
@@ -507,19 +520,6 @@ export const BBX_COMPETITION_ABI = [
     },
     {
         "inputs": [],
-        "name": "BEATBOXERS_COUNT",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [],
         "name": "DEFAULT_ADMIN_ROLE",
         "outputs": [
             {
@@ -565,25 +565,6 @@ export const BBX_COMPETITION_ABI = [
         "name": "addJudge",
         "outputs": [],
         "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-            }
-        ],
-        "name": "balances",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
         "type": "function"
     },
     {
@@ -801,12 +782,12 @@ export const BBX_COMPETITION_ABI = [
             },
             {
                 "internalType": "uint256",
-                "name": "likeCount2",
+                "name": "likeCount1",
                 "type": "uint256"
             },
             {
                 "internalType": "uint256",
-                "name": "likeCount1",
+                "name": "likeCount2",
                 "type": "uint256"
             }
         ],
@@ -1593,19 +1574,6 @@ export const BBX_COMPETITION_ABI = [
             }
         ],
         "name": "voteBattle",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-            }
-        ],
-        "name": "winnerWithdraw",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"

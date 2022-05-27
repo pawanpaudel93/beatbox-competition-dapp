@@ -1,9 +1,10 @@
-import { ICompetition } from '../../interfaces'
+import { ICompetition, IRoles } from '../../interfaces'
 import {
   Box,
   Container,
   Stack,
   Image,
+  Tag,
   Flex,
   Heading,
   SimpleGrid,
@@ -16,6 +17,9 @@ import {
   IconButton,
   useEditableControls,
   Textarea,
+  Center,
+  Alert,
+  AlertIcon,
 } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { CloseIcon, CheckIcon, EditIcon } from '@chakra-ui/icons'
@@ -23,11 +27,16 @@ import { toast } from 'react-toastify'
 import { BBX_COMPETITION_ABI } from '../../constants'
 import { useMoralis } from 'react-moralis'
 import { useRouter } from 'next/router'
+import { getCategoryByState } from '../../utils'
 interface CompetitionInfoProps {
   competition: ICompetition
+  roles: IRoles
 }
 
-export default function CompetitionInfo({ competition }: CompetitionInfoProps) {
+export default function CompetitionInfo({
+  competition,
+  roles,
+}: CompetitionInfoProps) {
   const [description, setDescription] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const { Moralis } = useMoralis()
@@ -92,10 +101,30 @@ export default function CompetitionInfo({ competition }: CompetitionInfoProps) {
   }
   return (
     <Container maxW={'7xl'}>
+      {roles.isAdmin && (
+        <Alert status="info">
+          <AlertIcon />
+          You are the{' '}
+          <Tag mx={2} variant="outline" colorScheme="blue">
+            ADMIN
+          </Tag>{' '}
+          of this competition.
+        </Alert>
+      )}
+      {roles.isJudge && (
+        <Alert status="info">
+          <AlertIcon />
+          You are a{' '}
+          <Tag mx={2} variant="outline" colorScheme="blue">
+            JUDGE
+          </Tag>{' '}
+          of this competition.
+        </Alert>
+      )}
       <SimpleGrid
         columns={{ base: 1, lg: 2 }}
         spacing={{ base: 8, md: 10 }}
-        py={{ base: 18, md: 24 }}
+        py={{ base: 18, md: 18 }}
       >
         <Stack spacing={{ base: 6, md: 10 }}>
           <Box as={'header'}>
@@ -107,8 +136,13 @@ export default function CompetitionInfo({ competition }: CompetitionInfoProps) {
             >
               {competition.name}
             </Heading>
+            <Center justifyItems="center">
+              Current stage:{' '}
+              <Tag ml={2} variant="outline" colorScheme="blue">
+                {getCategoryByState(competition.competitionState)}
+              </Tag>
+            </Center>
           </Box>
-
           <Stack
             spacing={{ base: 4, sm: 6 }}
             direction={'column'}

@@ -2,32 +2,60 @@ import type { NextPage } from 'next'
 import { Alert, AlertIcon, Center, Grid, Spinner, Text } from '@chakra-ui/react'
 import Competition from '../components/competition/Competition'
 import { ICompetition } from '../interfaces'
-import { useMoralisQuery, useMoralis } from 'react-moralis'
+import { useMoralis } from 'react-moralis'
 import { ethers } from 'ethers'
+import { useEffect, useState } from 'react'
 
 const MyCompetitions: NextPage = () => {
-  const { user } = useMoralis()
-  const { data, isFetching, isLoading, error } = useMoralisQuery(
-    'Competition',
-    (query) => query && query.equalTo('creator', user?.get('ethAddress')),
-    [user?.get('ethAddress')],
-    {
-      autoFetch: true,
-      live: true,
+  const { user, Moralis } = useMoralis()
+  const [isLoading, setIsLoading] = useState(true)
+  const [competitions, setCompetitions] = useState<ICompetition[]>([])
+
+  const fetchAllMyCompetitions = async () => {
+    try {
+      setIsLoading(true)
+      const competitions = []
+      let competitionQuery = new Moralis.Query('Competition')
+      competitionQuery.equalTo('creator', user?.get('ethAddress'))
+      competitions.push(...(await competitionQuery.find()))
+      const judgeQuery = new Moralis.Query('Judge')
+      judgeQuery.equalTo('userAddress', user?.get('ethAddress'))
+      const contractAddresses = (await judgeQuery.find()).map(
+        (item) => item.attributes.contractAddress
+      )
+      const beatboxerQuery = new Moralis.Query('Beatboxer')
+      beatboxerQuery.equalTo('userAddress', user?.get('ethAddress'))
+      contractAddresses.push(
+        ...(await beatboxerQuery.find()).map(
+          (item) => item.attributes.contractAddress
+        )
+      )
+      competitionQuery = new Moralis.Query('Competition')
+      competitionQuery.containedIn('contractAddress', contractAddresses)
+      competitions.push(...(await competitionQuery.find()))
+
+      setCompetitions(
+        competitions.map((competition) => ({
+          competitionId: competition.attributes.competitionId,
+          name: ethers.utils.parseBytes32String(competition.attributes.name),
+          description: competition.attributes.description,
+          imageURI: competition.attributes.imageURI,
+          contractAddress: competition.attributes.contractAddress,
+          creator: competition.attributes.creator,
+          competitionState: 0,
+        }))
+      )
+    } catch (e) {
+      console.log(e)
     }
-  )
+    setIsLoading(false)
+  }
 
-  const competitions: ICompetition[] = data?.map((competition) => ({
-    competitionId: competition.attributes.competitionId,
-    name: ethers.utils.parseBytes32String(competition.attributes.name),
-    description: competition.attributes.description,
-    imageURI: competition.attributes.imageURI,
-    contractAddress: competition.attributes.contractAddress,
-    creator: competition.attributes.creator,
-    competitionState: 0,
-  }))
+  useEffect(() => {
+    fetchAllMyCompetitions()
+  }, [user?.get('ethAddress')])
 
-  if (isLoading || isFetching) {
+  if (isLoading) {
     return (
       <Center>
         <Spinner
@@ -40,13 +68,6 @@ const MyCompetitions: NextPage = () => {
         />
         <Text>Fetching my competitions</Text>
       </Center>
-    )
-  } else if (error) {
-    return (
-      <Alert status="error">
-        <AlertIcon />
-        Error fetching my competitions: {error.message}
-      </Alert>
     )
   } else if (competitions.length === 0) {
     return (
@@ -65,7 +86,7 @@ const MyCompetitions: NextPage = () => {
       }}
       gap={6}
     >
-      {competitions?.map((competition, index) => (
+      {competitions.map((competition, index) => (
         <Competition key={index} competition={competition} />
       ))}
     </Grid>

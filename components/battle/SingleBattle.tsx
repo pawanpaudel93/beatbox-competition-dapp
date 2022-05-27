@@ -17,6 +17,7 @@ import { IBattle, IPoint } from '../../interfaces'
 import { VoteModal } from './VoteModal'
 import { getBeatboxCompetition, getCategoryByState } from '../../utils'
 import { ethers } from 'ethers'
+import Moralis from 'moralis/types'
 
 export default function SingleBattle({
   battle,
@@ -26,6 +27,8 @@ export default function SingleBattle({
   fetchVotedBattlesIndices,
   onOpen,
   setBattlePoints,
+  setBattle,
+  beatboxers,
 }: {
   battle: IBattle
   contractAddress: string
@@ -34,6 +37,8 @@ export default function SingleBattle({
   fetchVotedBattlesIndices: () => Promise<void>
   onOpen: () => void
   setBattlePoints: (battlePoints: IPoint[]) => void
+  setBattle: (battle: IBattle) => void
+  beatboxers: Moralis.Object<Moralis.Attributes>[]
 }) {
   const NOT_WINNER = ethers.BigNumber.from('16')
   const Video = ({ videoId }: { videoId: string }) => {
@@ -62,13 +67,25 @@ export default function SingleBattle({
     } else if (battle.winnerId.eq(battle.beatboxerOne.beatboxerId)) {
       return (
         <Text>
-          Winner: <Tag>BeatBoxerOne</Tag>
+          Winner:{' '}
+          <Tag>
+            {
+              beatboxers[battle.beatboxerOne.beatboxerId.toNumber()].attributes
+                .name
+            }
+          </Tag>
         </Text>
       )
     } else {
       return (
         <Text>
-          Winner: <Tag>BeatBoxerTwo</Tag>
+          Winner:{' '}
+          <Tag>
+            {
+              beatboxers[battle.beatboxerTwo.beatboxerId.toNumber()].attributes
+                .name
+            }
+          </Tag>
         </Text>
       )
     }
@@ -79,6 +96,7 @@ export default function SingleBattle({
       const beatboxCompetition = getBeatboxCompetition(contractAddress)
       const battlePoints = await beatboxCompetition.getBattlePoints(battle.id)
       setBattlePoints(battlePoints)
+      setBattle(battle)
       onOpen()
     } catch (err) {
       console.log(err)
@@ -126,15 +144,15 @@ export default function SingleBattle({
               <Box p={0} alignSelf="center">
                 <Text>
                   Start:{' '}
-                  {dayjs(battle.startTime.toNumber() * 1000).format(
-                    'MMM DD hh:mm A'
-                  )}
+                  {dayjs
+                    .utc(battle.startTime.toNumber() * 1000)
+                    .format('MMM DD hh:mm A')}
                 </Text>
                 <Text>
                   End:{' '}
-                  {dayjs(battle.endTime.toNumber() * 1000).format(
-                    'MMM DD hh:mm A'
-                  )}
+                  {dayjs
+                    .utc(battle.endTime.toNumber() * 1000)
+                    .format('MMM DD hh:mm A')}
                 </Text>
                 <Winner battle={battle} />
               </Box>

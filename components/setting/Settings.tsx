@@ -27,11 +27,12 @@ export default function Settings({
   const router = useRouter()
   const { Moralis } = useMoralis()
   const { contractAddress } = router.query
-  const [subscriptionId, setSubscriptionId] = useState('')
+  const [subscriptionId, setSubscriptionId] = useState(0)
   const [isLoading, setIsLoading] = useState({
     start: false,
     end: false,
     subscription: false,
+    fund: false,
   })
 
   useEffect(() => {
@@ -47,7 +48,7 @@ export default function Settings({
       )
 
       const _subscriptionId =
-        (await beatboxCompetition.subscriptionId()) as unknown as string
+        (await beatboxCompetition.subscriptionId()) as unknown as number
       console.log(_subscriptionId)
       setSubscriptionId(_subscriptionId)
     } catch (error) {
@@ -112,6 +113,7 @@ export default function Settings({
     }
     setIsLoading({ ...isLoading, subscription: false })
   }
+
   return (
     <VStack spacing={4}>
       <Box p={4} shadow="md">

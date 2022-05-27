@@ -111,9 +111,33 @@ export default function CreateBattle({
   const wildcardEnded =
     CompetitionState.WILDCARD_SUBMISSION < competition.competitionState
 
+  const isYtVideoValid = async (url: string) => {
+    try {
+      const isValid = await fetch('/api/check', {
+        method: 'POST',
+        body: JSON.stringify({ url }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      return (await isValid.json()).message
+    } catch (error) {
+      // console.log(error)
+      return false
+    }
+  }
+
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault()
     try {
+      if (!(await isYtVideoValid(videoUrls[0]))) {
+        toast.error(`Invalid Youtube Video url: ${videoUrls[0]}`)
+        return
+      }
+      if (!(await isYtVideoValid(videoUrls[1]))) {
+        toast.error(`Invalid Youtube Video url: ${videoUrls[1]}`)
+        return
+      }
       setIsLoading(true)
       const options = {
         functionName: 'startBattle',
@@ -129,7 +153,6 @@ export default function CreateBattle({
           winningAmount: ethers.utils.parseEther(winningAmount.toString()),
         },
       }
-      console.log(options)
       const battleTx = await Moralis.executeFunction(options)
       await battleTx.wait()
       clearForm()
@@ -138,7 +161,9 @@ export default function CreateBattle({
       fetchAllBattles()
     } catch (error) {
       setIsLoading(false)
-      toast.error(error.message)
+      if (error?.data?.message) {
+        toast.error(error.data.message)
+      }
     }
   }
 

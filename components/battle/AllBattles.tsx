@@ -26,6 +26,7 @@ export default function AllBattles({
   const { contractAddress } = router.query
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [battlePoints, setBattlePoints] = useState<IPoint[]>([])
+  const [battle, setBattle] = useState<IBattle>()
 
   if (battles.length === 0) {
     return (
@@ -42,21 +43,26 @@ export default function AllBattles({
         <SingleBattle
           key={index}
           battle={battle}
+          beatboxers={beatboxers}
           contractAddress={contractAddress as string}
           isJudge={isJudge}
           isVoted={votedBattles[battle.id]}
           fetchVotedBattlesIndices={fetchVotedBattlesIndices}
           onOpen={onOpen}
           setBattlePoints={setBattlePoints}
+          setBattle={setBattle}
         />
       ))}
-      <BattlePointsModal
-        battlePoints={battlePoints}
-        beatboxers={beatboxers}
-        judges={judges}
-        isOpen={isOpen}
-        onClose={onClose}
-      />
+      {battle && (
+        <BattlePointsModal
+          battle={battle}
+          battlePoints={battlePoints}
+          beatboxers={beatboxers}
+          judges={judges}
+          isOpen={isOpen}
+          onClose={onClose}
+        />
+      )}
     </>
   )
 }

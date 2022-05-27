@@ -89,7 +89,7 @@ export default function CreateWildcard({ competition }: CreateWildcardProps) {
         isWinner: false,
         rank: null,
       }
-      console.log(data)
+
       save(data, {
         onSuccess: (wildcard) => {
           toast.success('Wildcard submitted successfully!')

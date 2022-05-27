@@ -64,12 +64,9 @@ export const AuthenticationProvider = ({ children }) => {
     // Subscribe to onChainChanged events
     const unsubscribeOnChainChanged = Moralis.onChainChanged((chain) => {
       if (supportedChainIds.indexOf(chain as string) == -1) {
-        toast.error('This application is not supported on this chain.', {
-          autoClose: false,
-        })
-        toast.info("Please switch to Polygon's mumbai testnet.", {
-          autoClose: false,
-        })
+        toast.error('This application is not supported on this chain.')
+        toast.info("Please switch to Polygon's mumbai testnet.")
+        switchNetworkMumbai()
       }
     })
 
@@ -90,7 +87,6 @@ export const AuthenticationProvider = ({ children }) => {
 
   const authentication = async () => {
     try {
-      // switchNetworkMumbai()
       if (!isWeb3Enabled) {
         await enableWeb3()
       } else if (!isAuthenticated) {

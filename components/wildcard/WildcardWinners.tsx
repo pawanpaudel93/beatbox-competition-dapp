@@ -32,14 +32,16 @@ export default function WildcardWinners({
 
   return (
     <>
-      {(roles.isAdmin || roles.isJudge) && contractAddress && (
-        <SelectWinners
-          competition={competition}
-          wildcards={allWildcards}
-          contractAddress={contractAddress as string}
-          roles={roles}
-        />
-      )}
+      {(roles.isAdmin || roles.isJudge) &&
+        contractAddress &&
+        allWildcards.length > 0 && (
+          <SelectWinners
+            competition={competition}
+            wildcards={allWildcards}
+            contractAddress={contractAddress as string}
+            roles={roles}
+          />
+        )}
       {wildcards.length > 0 ? (
         <VStack
           padding={3}
