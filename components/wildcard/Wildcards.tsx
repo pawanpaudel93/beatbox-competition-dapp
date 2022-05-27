@@ -4,7 +4,6 @@ import {
   Tab,
   TabPanels,
   TabPanel,
-  Box,
   Text,
   Center,
   Spinner,

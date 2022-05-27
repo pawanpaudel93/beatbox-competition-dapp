@@ -29,6 +29,7 @@ dayjs.extend(utc)
 interface CreateBattleProps {
   competition: ICompetition
   fetchAllBattles: () => Promise<void>
+  fetchVotedBattlesIndices: () => Promise<void>
 }
 
 interface IBattle {
@@ -46,7 +47,6 @@ interface IBeatboxer {
 export default function CreateBattle({
   competition,
   fetchAllBattles,
-  fetchVotedBattlesIndices,
 }: CreateBattleProps) {
   // const today = '2022-05-14T11:23'
   const today = new Date()

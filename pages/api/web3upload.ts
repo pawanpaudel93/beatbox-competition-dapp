@@ -19,7 +19,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  const client = new Web3Storage({ token: process.env.WEB3STORAGE_TOKEN! })
+  const client = new Web3Storage({ token: process.env.WEB3STORAGE_TOKEN })
   if (req.method === 'POST') {
     // parse form with a Promise wrapper
     try {

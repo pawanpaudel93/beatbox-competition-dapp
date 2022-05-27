@@ -40,7 +40,6 @@ export default function SelectWinners({
   wildcards,
   contractAddress,
   roles,
-  competition,
 }: SelectWinnersProps) {
   const seedData = wildcards.map((wildcard) => ({
     label: wildcard.attributes.name,

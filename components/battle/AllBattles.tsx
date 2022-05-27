@@ -1,5 +1,4 @@
-import { Alert, AlertIcon, useDisclosure } from '@chakra-ui/react'
-import { useState } from 'react'
+import { Alert, AlertIcon } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
 import { IBattle, IPoint } from '../../interfaces'
 import SingleBattle from './SingleBattle'
@@ -12,6 +11,13 @@ interface AllBattlesProps {
   fetchVotedBattlesIndices: () => Promise<void>
   beatboxers: Moralis.Object<Moralis.Attributes>[]
   judges: { [key: string]: string }
+  isOpen: boolean
+  onOpen: () => void
+  onClose: () => void
+  battlePoints: IPoint[]
+  setBattlePoints: (battlePoints: IPoint[]) => void
+  battle: IBattle | undefined
+  setBattle: (battle: IBattle) => void
 }
 
 export default function AllBattles({
@@ -21,12 +27,16 @@ export default function AllBattles({
   fetchVotedBattlesIndices,
   beatboxers,
   judges,
+  isOpen,
+  onOpen,
+  onClose,
+  battlePoints,
+  setBattlePoints,
+  battle,
+  setBattle,
 }: AllBattlesProps) {
   const router = useRouter()
   const { contractAddress } = router.query
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  const [battlePoints, setBattlePoints] = useState<IPoint[]>([])
-  const [battle, setBattle] = useState<IBattle>()
 
   if (battles.length === 0) {
     return (
