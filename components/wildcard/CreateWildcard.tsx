@@ -68,11 +68,19 @@ export default function CreateWildcard({ competition }: CreateWildcardProps) {
     e.preventDefault()
     setIsLoading(true)
     const Wildcard = Moralis.Object.extend('Wildcard')
-    const query = new Moralis.Query(Wildcard)
+    let query = new Moralis.Query(Wildcard)
     query.equalTo('contractAddress', contractAddress)
     query.equalTo('userAddress', user?.attributes.ethAddress)
     const wildcard = await query.find()
     if (wildcard.length == 0) {
+      query = new Moralis.Query('Wildcard')
+      query.equalTo('contractAddress', contractAddress)
+      query.equalTo('name', name)
+      if ((await query.find()).length > 0) {
+        toast.error('Wildcard with this name already exists')
+        setIsLoading(false)
+        return
+      }
       let web3VideoUrl
       if (file && !isYoutube) {
         web3VideoUrl = await uploadToWeb3()

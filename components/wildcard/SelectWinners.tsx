@@ -170,7 +170,8 @@ export default function SelectWinners({
         <Alert status="info">
           <AlertIcon />
           <strong>
-            Only {votedCount}/{judgeCount?.toString()} have voted!
+            Only {votedCount}/{judgeCount?.toString()} judges have selected
+            their Top 16 wildcards!
           </strong>
         </Alert>
       )}

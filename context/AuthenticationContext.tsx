@@ -29,7 +29,7 @@ export const AuthenticationProvider = ({ children }) => {
     user,
   } = useMoralis()
   // polygon testnet and local
-  const supportedChainIds = ['0x13881', '0x7a69']
+  const supportedChainIds = ['0x13881']
 
   const switchNetworkMumbai = async () => {
     try {

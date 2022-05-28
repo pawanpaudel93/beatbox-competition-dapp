@@ -7,6 +7,8 @@ import {
   FormControl,
   Input,
   Center,
+  Link,
+  Text,
 } from '@chakra-ui/react'
 import { ICompetition } from '../../interfaces'
 import { useRouter } from 'next/router'
@@ -151,7 +153,9 @@ export default function Settings({
 
       <HStack spacing={8} mt={8}>
         <FormControl>
-          <Heading fontSize="xl">Set Subscription Id </Heading>
+          <Heading fontSize="xl">
+            Set Subscription Id for Chainlink VRF{' '}
+          </Heading>
           <Input
             padding={2}
             margin={2}
@@ -162,6 +166,16 @@ export default function Settings({
               setSubscriptionId(parseInt(e.target.value))
             }
           />
+          <Text>
+            Don't have a subscription id?{' '}
+            <Link
+              href="https://vrf.chain.link/mumbai/new"
+              isExternal
+              textColor="blue"
+            >
+              Create VRF Subscription
+            </Link>
+          </Text>
           <Center>
             <Button
               colorScheme="green"
@@ -173,6 +187,17 @@ export default function Settings({
           </Center>
         </FormControl>
       </HStack>
+      <Text>
+        Also register new upkeep for the competition contract
+        <Link
+          href="https://keepers.chain.link/mumbai/new"
+          isExternal
+          textColor="blue"
+        >
+          {' '}
+          Register new Upkeep
+        </Link>
+      </Text>
     </VStack>
   )
 }
