@@ -34,7 +34,8 @@ export default function WildcardWinners({
     <>
       {(roles.isAdmin || roles.isJudge) &&
         contractAddress &&
-        allWildcards.length > 0 && (
+        allWildcards.length > 0 &&
+        wildcards.length === 0 && (
           <SelectWinners
             competition={competition}
             wildcards={allWildcards}

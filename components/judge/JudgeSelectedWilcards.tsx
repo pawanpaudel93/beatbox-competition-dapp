@@ -16,6 +16,7 @@ import {
   AlertIcon,
 } from '@chakra-ui/react'
 import Moralis from 'moralis'
+import { useRouter } from 'next/router'
 import { useMoralisQuery } from 'react-moralis'
 
 export default function JudgeSelectedWilcards({
@@ -24,10 +25,14 @@ export default function JudgeSelectedWilcards({
   judge: Moralis.Object<Moralis.Attributes>
 }) {
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const router = useRouter()
+  const { contractAddress } = router.query
   const { data: wildcards } = useMoralisQuery(
     'WildcardWinners',
-    (query) => query.equalTo('judgeAddress', judge.attributes.userAddress),
-    [isOpen, judge.attributes.userAddress],
+    (query) =>
+      query.equalTo('judgeAddress', judge.attributes.userAddress) &&
+      query.equalTo('contractAddress', contractAddress),
+    [judge.attributes.userAddress, contractAddress],
     {
       autoFetch: true,
       live: true,
