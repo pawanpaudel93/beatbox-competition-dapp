@@ -82,15 +82,15 @@ export default function Updates({ roles }: { roles: IRoles }) {
                     <HStack spacing={6}>
                       <Text fontSize="sm" colorScheme="gray">
                         Created:{' '}
-                        {dayjs
-                          .utc(update.attributes.createdAt)
-                          .format('MMM D, YYYY h:mm A')}
+                        {dayjs(update.attributes.createdAt).format(
+                          'MMM D, YYYY h:mm A'
+                        )}
                       </Text>
                       <Text fontSize="sm" colorScheme="gray">
                         Updated:{' '}
-                        {dayjs
-                          .utc(update.attributes.updatedAt)
-                          .format('MMM D, YYYY h:mm A')}
+                        {dayjs(update.attributes.updatedAt).format(
+                          'MMM D, YYYY h:mm A'
+                        )}
                       </Text>
                     </HStack>
                     <Text mt={4}>

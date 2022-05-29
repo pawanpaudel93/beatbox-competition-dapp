@@ -153,7 +153,7 @@ export default function UpdateModal() {
                 justifyContent="center"
               >
                 <FormLabel htmlFor="is-youtube" mb="0">
-                  Upload wildcard ?
+                  Upload video ?
                 </FormLabel>
                 <Switch
                   id="is-youtube"

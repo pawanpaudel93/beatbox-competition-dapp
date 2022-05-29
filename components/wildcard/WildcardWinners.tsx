@@ -13,6 +13,7 @@ import SelectWinners from './SelectWinners'
 import Moralis from 'moralis'
 import dayjs from 'dayjs'
 import { ICompetition, IRoles } from '../../interfaces'
+import Video from '../Video'
 
 interface WildcardWinnersProps {
   allWildcards: Moralis.Object<Moralis.Attributes>[]
@@ -60,33 +61,21 @@ export default function WildcardWinners({
                     <HStack spacing={6}>
                       <Text fontSize="sm" colorScheme="gray">
                         Submitted:{' '}
-                        {dayjs
-                          .utc(wildcard.attributes.createdAt)
-                          .format('MMM D, YYYY h:mm A')}
+                        {dayjs(wildcard.attributes.createdAt).format(
+                          'MMM D, YYYY h:mm A'
+                        )}
                       </Text>
                       <Text fontSize="sm" colorScheme="gray">
                         Updated:{' '}
-                        {dayjs
-                          .utc(wildcard.attributes.updatedAt)
-                          .format('MMM D, YYYY h:mm A')}
+                        {dayjs(wildcard.attributes.updatedAt).format(
+                          'MMM D, YYYY h:mm A'
+                        )}
                       </Text>
                     </HStack>
                   </Box>
-                  <Box
-                    as="iframe"
-                    src={
-                      wildcard.attributes.videoUrl.indexOf('youtube') > 0
-                        ? 'https://www.youtube.com/embed/' +
-                          wildcard.attributes.videoUrl.split('=').pop()
-                        : wildcard.attributes.videoUrl
-                    }
-                    width="20%"
-                    height="20%"
-                    allowFullScreen
-                    sx={{
-                      aspectRatio: '16/9',
-                    }}
-                  />
+                  <Box width="20%" height="20%">
+                    <Video videoUrl={wildcard.attributes.videoUrl} />
+                  </Box>
                 </HStack>
               </Box>
             </HStack>

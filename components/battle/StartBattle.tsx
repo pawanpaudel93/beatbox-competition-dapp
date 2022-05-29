@@ -23,8 +23,6 @@ import { getBeatboxCompetition, getCategoryByState } from '../../utils'
 import { ICompetition } from '../../interfaces'
 import { BBX_COMPETITION_ABI, CompetitionState } from '../../constants'
 import dayjs from 'dayjs'
-import utc from 'dayjs/plugin/utc'
-dayjs.extend(utc)
 
 interface CreateBattleProps {
   competition: ICompetition
@@ -49,12 +47,7 @@ export default function CreateBattle({
   fetchAllBattles,
 }: CreateBattleProps) {
   // const today = '2022-05-14T11:23'
-  const today = new Date()
-    .toISOString()
-    .split('.')[0]
-    .split(':')
-    .slice(0, 2)
-    .join(':')
+  const today = dayjs().format('YYYY-MM-DDTHH:mm')
   const [name, setName] = useState('')
   const [battle, setBattle] = useState<IBattle>({
     id: 0,
@@ -147,16 +140,19 @@ export default function CreateBattle({
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault()
+    setIsLoading(true)
     try {
       if (!(await isYtVideoValid(videoUrls[0]))) {
         toast.error(`Invalid Youtube Video url: ${videoUrls[0]}`)
+        setIsLoading(false)
         return
       }
       if (!(await isYtVideoValid(videoUrls[1]))) {
         toast.error(`Invalid Youtube Video url: ${videoUrls[1]}`)
+        setIsLoading(false)
         return
       }
-      setIsLoading(true)
+
       const options = {
         functionName: 'startBattle',
         contractAddress: contractAddress as string,
@@ -166,8 +162,8 @@ export default function CreateBattle({
           name,
           ytVideoIdOne: youtubeUrlToBytes11(videoUrls[0]),
           ytVideoIdTwo: youtubeUrlToBytes11(videoUrls[1]),
-          startTime: dayjs.utc(battleStart).unix(),
-          endTime: dayjs.utc(battleEnd).unix(),
+          startTime: dayjs(battleStart).unix(),
+          endTime: dayjs(battleEnd).unix(),
           winningAmount: ethers.utils.parseEther(winningAmount.toString()),
         },
       }

@@ -12,6 +12,7 @@ import UpdateWildcard from './UpdateWildcard'
 import { ICompetition } from '../../interfaces'
 import Moralis from 'moralis'
 import { CompetitionState } from '../../constants'
+import Video from '../Video'
 
 interface MyWilcardProps {
   competition: ICompetition
@@ -82,20 +83,7 @@ export default function MyWilcard({
           overflow="hidden"
           key={index}
         >
-          <Box
-            as="iframe"
-            src={
-              wildcard.attributes.videoUrl.indexOf('youtube') > 0
-                ? 'https://www.youtube.com/embed/' +
-                  wildcard.attributes.videoUrl.split('=').pop()
-                : wildcard.attributes.videoUrl
-            }
-            width="100%"
-            allowFullScreen
-            sx={{
-              aspectRatio: '16/9',
-            }}
-          />
+          <Video videoUrl={wildcard.attributes.videoUrl} />
 
           <Box p="6">
             <Box display="flex" alignItems="baseline">

@@ -21,6 +21,7 @@ import {
 } from '@chakra-ui/react'
 import Moralis from 'moralis/types'
 import dayjs from 'dayjs'
+import Video from '../Video'
 
 export default function UpdateDetailModal({
   update,
@@ -60,15 +61,15 @@ export default function UpdateDetailModal({
                         fontWeight={300}
                       >
                         Created:{' '}
-                        {dayjs
-                          .utc(update.attributes.createdAt)
-                          .format('MMM D, YYYY h:mm A')}
+                        {dayjs(update.attributes.createdAt).format(
+                          'MMM D, YYYY h:mm A'
+                        )}
                       </Text>
                       <Text colorScheme="gray">
                         Updated:{' '}
-                        {dayjs
-                          .utc(update.attributes.updatedAt)
-                          .format('MMM D, YYYY h:mm A')}
+                        {dayjs(update.attributes.updatedAt).format(
+                          'MMM D, YYYY h:mm A'
+                        )}
                       </Text>
                     </HStack>
                   </Box>
@@ -88,18 +89,12 @@ export default function UpdateDetailModal({
                 {update.attributes.videoUrl && (
                   <Flex>
                     <Box
-                      as="iframe"
-                      src={
-                        update.attributes.videoUrl.indexOf('youtube') > 0
-                          ? 'https://www.youtube.com/embed/' +
-                            update.attributes.videoUrl.split('=').pop()
-                          : update.attributes.videoUrl
-                      }
                       width="100%"
-                      allowFullScreen
                       w={'100%'}
                       h={{ base: '100%', sm: '400px', lg: '500px' }}
-                    />
+                    >
+                      <Video videoUrl={update.attributes.videoUrl} />
+                    </Box>
                   </Flex>
                 )}
               </SimpleGrid>

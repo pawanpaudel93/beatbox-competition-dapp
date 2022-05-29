@@ -18,6 +18,7 @@ import {
 import Moralis from 'moralis'
 import { useRouter } from 'next/router'
 import { useMoralisQuery } from 'react-moralis'
+import Video from '../Video'
 
 export default function JudgeSelectedWilcards({
   judge,
@@ -73,21 +74,9 @@ export default function JudgeSelectedWilcards({
                             {wildcard.attributes.name}
                           </Heading>
                         </Box>
-                        <Box
-                          as="iframe"
-                          src={
-                            wildcard.attributes.videoUrl.indexOf('youtube') > 0
-                              ? 'https://www.youtube.com/embed/' +
-                                wildcard.attributes.videoUrl.split('=').pop()
-                              : wildcard.attributes.videoUrl
-                          }
-                          width="20%"
-                          height="20%"
-                          allowFullScreen
-                          sx={{
-                            aspectRatio: '16/9',
-                          }}
-                        />
+                        <Box width="20%" height="20%">
+                          <Video videoUrl={wildcard.attributes.videoUrl} />
+                        </Box>
                       </HStack>
                     </Box>
                   </HStack>

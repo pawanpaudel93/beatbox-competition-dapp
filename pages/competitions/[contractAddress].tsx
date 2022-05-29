@@ -21,6 +21,7 @@ import Settings from '../../components/setting/Settings'
 import Updates from '../../components/updates/Updates'
 import { getBeatboxCompetition } from '../../utils'
 import Supports from '../../components/support/Supports'
+import 'react-lite-youtube-embed/dist/LiteYouTubeEmbed.css'
 
 const ContractDetail: NextPage = () => {
   const router = useRouter()

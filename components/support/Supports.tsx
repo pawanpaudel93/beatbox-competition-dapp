@@ -16,8 +16,6 @@ import {
 import dayjs from 'dayjs'
 import { useRouter } from 'next/router'
 import { useMoralisQuery } from 'react-moralis'
-import utc from 'dayjs/plugin/utc'
-dayjs.extend(utc)
 
 export default function Supports() {
   const router = useRouter()
@@ -84,9 +82,9 @@ export default function Supports() {
               <Td>{support.attributes.name}</Td>
               <Td>{support.attributes.amount}</Td>
               <Td>
-                {dayjs
-                  .utc(support.attributes.createdAt)
-                  .format('MMM DD YYYY hh:mm A')}
+                {dayjs(support.attributes.createdAt).format(
+                  'MMM DD YYYY hh:mm A'
+                )}
               </Td>
             </Tr>
           ))}

@@ -18,6 +18,7 @@ import { VoteModal } from './VoteModal'
 import { getBeatboxCompetition, getCategoryByState } from '../../utils'
 import { ethers } from 'ethers'
 import Moralis from 'moralis/types'
+import LiteYouTubeEmbed from 'react-lite-youtube-embed'
 
 export default function SingleBattle({
   battle,
@@ -42,20 +43,7 @@ export default function SingleBattle({
 }) {
   const NOT_WINNER = ethers.BigNumber.from('16')
   const Video = ({ videoId }: { videoId: string }) => {
-    return (
-      <Box
-        borderWidth="1px"
-        overflow="hidden"
-        as="iframe"
-        p={1}
-        src={'https://www.youtube.com/embed/' + videoId}
-        width="100%"
-        allowFullScreen
-        sx={{
-          aspectRatio: '16/9',
-        }}
-      />
-    )
+    return <LiteYouTubeEmbed id={videoId} title="YouTube Embed" />
   }
   const Winner = ({ battle }: { battle: IBattle }) => {
     if (battle.winnerId.eq(NOT_WINNER)) {
@@ -144,15 +132,15 @@ export default function SingleBattle({
               <Box p={0} alignSelf="center">
                 <Text>
                   Start:{' '}
-                  {dayjs
-                    .utc(battle.startTime.toNumber() * 1000)
-                    .format('MMM DD hh:mm A')}
+                  {dayjs(battle.startTime.toNumber() * 1000).format(
+                    'MMM DD hh:mm A'
+                  )}
                 </Text>
                 <Text>
                   End:{' '}
-                  {dayjs
-                    .utc(battle.endTime.toNumber() * 1000)
-                    .format('MMM DD hh:mm A')}
+                  {dayjs(battle.endTime.toNumber() * 1000).format(
+                    'MMM DD hh:mm A'
+                  )}
                 </Text>
                 <Winner battle={battle} />
               </Box>
@@ -173,9 +161,7 @@ export default function SingleBattle({
           </Center>
         </GridItem>
         <GridItem w="100%">
-          <Box display="flex" justifyContent="end">
-            <Video videoId={battle.beatboxerTwo.ytVideoId} />
-          </Box>
+          <Video videoId={battle.beatboxerTwo.ytVideoId} />
           <Center>
             <Text fontSize="sm" justifySelf="center">
               Points: <Tag>{battle.beatboxerTwo.score.toString()}</Tag>
