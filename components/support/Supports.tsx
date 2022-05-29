@@ -47,7 +47,7 @@ export default function Supports() {
           size="xl"
           m={4}
         />
-        <Text>Fetching judges...</Text>
+        <Text>Fetching supporters...</Text>
       </Center>
     )
   } else if (error) {
