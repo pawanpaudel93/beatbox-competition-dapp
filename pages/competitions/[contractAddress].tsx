@@ -20,6 +20,7 @@ import Battles from '../../components/battle/Battles'
 import Settings from '../../components/setting/Settings'
 import Updates from '../../components/updates/Updates'
 import { getBeatboxCompetition } from '../../utils'
+import Supports from '../../components/support/Supports'
 
 const ContractDetail: NextPage = () => {
   const router = useRouter()
@@ -92,6 +93,7 @@ const ContractDetail: NextPage = () => {
         <Tab>Judges</Tab>
         <Tab>Battles</Tab>
         <Tab>Updates</Tab>
+        <Tab>Supporters</Tab>
         {roles.isAdmin && <Tab>Settings</Tab>}
       </TabList>
 
@@ -116,6 +118,9 @@ const ContractDetail: NextPage = () => {
         </TabPanel>
         <TabPanel>
           <Updates roles={roles} />
+        </TabPanel>
+        <TabPanel>
+          <Supports />
         </TabPanel>
         {roles.isAdmin && (
           <TabPanel>

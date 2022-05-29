@@ -28,6 +28,7 @@ import { BBX_COMPETITION_ABI } from '../../constants'
 import { useMoralis } from 'react-moralis'
 import { useRouter } from 'next/router'
 import { getCategoryByState } from '../../utils'
+import Contribute from '../modals/Contribute'
 interface CompetitionInfoProps {
   competition: ICompetition
   roles: IRoles
@@ -166,6 +167,11 @@ export default function CompetitionInfo({
               <EditableControls />
             </Editable>
           </Stack>
+          <Contribute
+            address={contractAddress as string}
+            buttonName={'Support ' + competition.name}
+            contributedTo={competition.name}
+          />
         </Stack>
         <Flex>
           <Image
