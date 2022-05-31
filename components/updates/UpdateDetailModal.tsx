@@ -37,9 +37,9 @@ export default function UpdateDetailModal({
       <Modal onClose={onClose} size="full" isOpen={isOpen}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Update Detail</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
+          <ModalHeader bgColor="blue.500">Update Detail</ModalHeader>
+          <ModalCloseButton size="lg" />
+          <ModalBody bgColor="gray.300">
             <Container maxW={'7xl'}>
               <SimpleGrid
                 columns={{ base: 1, lg: 2 }}
@@ -100,7 +100,7 @@ export default function UpdateDetailModal({
               </SimpleGrid>
             </Container>
           </ModalBody>
-          <ModalFooter>
+          <ModalFooter bgColor="blue.500">
             <Button onClick={onClose}>Close</Button>
           </ModalFooter>
         </ModalContent>

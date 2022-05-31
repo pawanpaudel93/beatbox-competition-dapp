@@ -15,13 +15,14 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { ChangeEvent, FormEvent, useState } from 'react'
-import { useNewMoralisObject, useMoralis } from 'react-moralis'
+import { useNewMoralisObject } from 'react-moralis'
 import Moralis from 'moralis'
 import { useRouter } from 'next/router'
 import { toast } from 'react-toastify'
 import { ICompetition } from '../../interfaces'
 import { CompetitionState } from '../../constants'
 import Web3Upload from './../Web3Upload'
+import { useAuthentication } from '../../context/AuthenticationContext'
 
 interface CreateWildcardProps {
   competition: ICompetition
@@ -35,7 +36,7 @@ export default function CreateWildcard({ competition }: CreateWildcardProps) {
   const [isUploading, setIsUploading] = useState(false)
   const [isYoutube, setIsYoutube] = useState(true)
   const { save } = useNewMoralisObject('Wildcard')
-  const { user } = useMoralis()
+  const { user, isAuthenticated } = useAuthentication()
   const router = useRouter()
   const { contractAddress } = router.query
   const wildcardStarted =
@@ -193,7 +194,7 @@ export default function CreateWildcard({ competition }: CreateWildcardProps) {
               type="submit"
               colorScheme="blue"
               isLoading={isLoading}
-              disabled={isDisabled}
+              disabled={isDisabled || !isAuthenticated}
             >
               Submit
             </Button>
@@ -211,6 +212,14 @@ export default function CreateWildcard({ competition }: CreateWildcardProps) {
         <Alert status="error">
           <AlertIcon />
           <AlertDescription>Wilcard submission ended.</AlertDescription>
+        </Alert>
+      )}
+      {wildcardStarted && !wildcardEnded && !isAuthenticated && (
+        <Alert status="error">
+          <AlertIcon />
+          <AlertDescription>
+            You must be signed in to submit a wildcard.
+          </AlertDescription>
         </Alert>
       )}
     </Container>

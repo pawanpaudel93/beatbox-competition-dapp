@@ -15,6 +15,8 @@ import { useRouter } from 'next/router'
 import { toast } from 'react-toastify'
 import { ethers } from 'ethers'
 import { BBX_COMPETITION_ABI } from '../../constants'
+import { useAuthentication } from '../../context/AuthenticationContext'
+import { errorLogging } from '../../utils'
 
 export default function CreateJudge() {
   const [name, setName] = useState('')
@@ -23,6 +25,7 @@ export default function CreateJudge() {
   const [isError, setIsError] = useState(false)
   const { save } = useNewMoralisObject('Judge')
   const router = useRouter()
+  const { getReadyForTransaction } = useAuthentication()
   const { contractAddress } = router.query
 
   const onSubmit = async (e: FormEvent) => {
@@ -41,6 +44,7 @@ export default function CreateJudge() {
     const judge = await query.find()
     if (judge.length == 0) {
       try {
+        await getReadyForTransaction()
         const options = {
           contractAddress: contractAddress as string,
           functionName: 'addJudge',
@@ -56,7 +60,7 @@ export default function CreateJudge() {
         toast.success('Judge added successfully!')
         clearForm()
       } catch (error) {
-        toast.error('Error adding judge!')
+        errorLogging(error)
       }
     } else {
       toast.error('You already added the judge!')

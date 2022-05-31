@@ -21,7 +21,8 @@ import { BBX_COMPETITION_ABI } from '../../constants'
 import { useMoralis } from 'react-moralis'
 import Moralis from 'moralis'
 import { ICompetition, IRoles } from '../../interfaces'
-import { getBeatboxCompetition } from '../../utils'
+import { errorLogging, getBeatboxCompetition } from '../../utils'
+import { useAuthentication } from '../../context/AuthenticationContext'
 
 type Item = {
   value: string
@@ -47,6 +48,7 @@ export default function SelectWinners({
     wildcard,
   }))
   const { Moralis, user } = useMoralis()
+  const { getReadyForTransaction } = useAuthentication()
   const [votedCount, setVotedCount] = useState(0)
   const [judgeCount, setJudgeCount] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
@@ -97,6 +99,7 @@ export default function SelectWinners({
     setIsLoading(true)
     if (roles.isAdmin) {
       try {
+        await getReadyForTransaction()
         const wildcardToUpdate = selectedItems.map((item, index) => ({
           filter: { objectId: item.value },
           update: { isWinner: true, rank: index + 1 },
@@ -122,13 +125,8 @@ export default function SelectWinners({
         await addBeatboxersTx.wait()
         toast.success('Successfully selected winners!')
         onClose()
-      } catch (e) {
-        console.log(e)
-        if (e?.data?.message) {
-          toast.error(e.data.message)
-        } else {
-          toast.error(e.message)
-        }
+      } catch (error) {
+        errorLogging(error)
       }
     } else if (roles.isJudge) {
       try {
@@ -148,9 +146,8 @@ export default function SelectWinners({
         })
         toast.success('Successfully selected winners!')
         onClose()
-      } catch (e) {
-        console.log(e)
-        toast.error(e.message)
+      } catch (error) {
+        errorLogging(error)
       }
     }
     setIsLoading(false)

@@ -1,4 +1,4 @@
-import { Box, Image, Link } from '@chakra-ui/react'
+import { Box, Button, Image } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { ICompetition } from '../../interfaces'
 
@@ -8,14 +8,19 @@ interface Props {
 
 export default function Competition({ competition }: Props) {
   return (
-    <Box maxW="sm" borderWidth="1px" borderRadius="lg" overflow="hidden">
+    <Box
+      maxW="sm"
+      borderWidth="1px"
+      borderRadius="lg"
+      borderColor="blue.400"
+      overflow="hidden"
+    >
       <Image
         src={competition.imageURI}
         alt={competition.name}
         h={200}
         w="full"
       />
-
       <Box p="6">
         <Box display="flex" alignItems="baseline">
           <Box
@@ -32,17 +37,20 @@ export default function Competition({ competition }: Props) {
         <Box
           mt="1"
           fontWeight="semibold"
-          as="h4"
+          as="h6"
           lineHeight="tight"
           isTruncated
         >
           {competition.description}
         </Box>
+
         <NextLink
           href={'/competitions/' + competition.contractAddress}
           passHref
         >
-          <Link>View</Link>
+          <Button size="sm" colorScheme="blue">
+            View
+          </Button>
         </NextLink>
       </Box>
     </Box>

@@ -19,11 +19,14 @@ import { useMoralis } from 'react-moralis'
 import { BBX_COMPETITION_ABI } from '../../constants'
 import { toast } from 'react-toastify'
 import JudgeSelectedWilcards from './JudgeSelectedWilcards'
+import { useAuthentication } from '../../context/AuthenticationContext'
+import { errorLogging } from '../../utils'
 
 export default function AllJudges({ isAdmin }: { isAdmin: boolean }) {
   const router = useRouter()
   const { contractAddress } = router.query
   const { Moralis } = useMoralis()
+  const { getReadyForTransaction } = useAuthentication()
 
   const {
     data: judges,
@@ -47,18 +50,23 @@ export default function AllJudges({ isAdmin }: { isAdmin: boolean }) {
     query.equalTo('userAddress', judgeAddress)
     const judge = await query.find()
     if (judge.length > 0) {
-      const options = {
-        contractAddress: contractAddress as string,
-        functionName: 'removeJudge',
-        abi: BBX_COMPETITION_ABI,
-        params: {
-          judgeAddress,
-        },
+      try {
+        await getReadyForTransaction()
+        const options = {
+          contractAddress: contractAddress as string,
+          functionName: 'removeJudge',
+          abi: BBX_COMPETITION_ABI,
+          params: {
+            judgeAddress,
+          },
+        }
+        const removeTx = await Moralis.executeFunction(options)
+        await removeTx.wait()
+        judge[0].destroy()
+        toast.success('Judge removed successfully!')
+      } catch (error) {
+        errorLogging(error)
       }
-      const removeTx = await Moralis.executeFunction(options)
-      await removeTx.wait()
-      judge[0].destroy()
-      toast.success('Judge removed successfully!')
     } else {
       toast.error('Judge not found!')
     }

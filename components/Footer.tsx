@@ -77,7 +77,7 @@ export default function Footer() {
         >
           Beat box icons created by surang - Flaticon
         </a>
-        <Text>© 2022 Beatbox Competitions. All rights reserved</Text>
+        <Text>© 2022 Online Beatbox Competition. All rights reserved</Text>
         <Stack direction={'row'} spacing={6}>
           <SocialButton label={'Twitter'} href={'#'}>
             <FaTwitter />

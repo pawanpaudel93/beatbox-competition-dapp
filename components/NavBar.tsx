@@ -103,7 +103,7 @@ export default function NavBar() {
             <HStack spacing={8} alignItems={'center'}>
               <NextLink href="/" passHref>
                 <Box cursor="pointer">
-                  <Logo /> <b>Beatbox Competitions</b>
+                  <Logo /> <b>Beatbox Competition</b>
                 </Box>
               </NextLink>
 

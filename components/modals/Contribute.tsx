@@ -17,6 +17,7 @@ import {
 import { useState } from 'react'
 import { useMoralis } from 'react-moralis'
 import { toast } from 'react-toastify'
+import { useAuthentication } from '../../context/AuthenticationContext'
 
 export default function Contribute({
   address,
@@ -32,11 +33,13 @@ export default function Contribute({
   const [name, setName] = useState('Anonymous')
   const [isLoading, setIsLoading] = useState(false)
   const { Moralis, user } = useMoralis()
+  const { getReadyForTransaction } = useAuthentication()
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsLoading(true)
     try {
+      await getReadyForTransaction()
       const options = {
         type: 'native',
         amount: Moralis.Units.ETH(amount),
@@ -53,7 +56,6 @@ export default function Contribute({
       await support.save()
       toast.success('Thank you for your support!')
     } catch (error) {
-      console.log(error)
       if (error?.data?.message) {
         toast.error(error.data.message)
       } else {

@@ -110,7 +110,12 @@ export default function UpdateModal() {
           Create an Update
         </Button>
       </div>
-      <Modal size="xl" isOpen={isOpen} onClose={onClose}>
+      <Modal
+        size="xl"
+        isOpen={isOpen}
+        onClose={onClose}
+        scrollBehavior="inside"
+      >
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Add an Update</ModalHeader>

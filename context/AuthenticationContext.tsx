@@ -9,12 +9,14 @@ export const AuthenticationContext = createContext<{
   user: Moralis.User | null
   isAuthenticated: boolean
   isAuthenticating: boolean
+  getReadyForTransaction: () => Promise<void>
 }>({
   signin: () => Promise.resolve(),
   signout: () => Promise.resolve(),
   user: null,
   isAuthenticated: false,
   isAuthenticating: false,
+  getReadyForTransaction: () => Promise.resolve(),
 })
 
 export const AuthenticationProvider = ({ children }) => {
@@ -25,6 +27,9 @@ export const AuthenticationProvider = ({ children }) => {
     logout,
     isWeb3Enabled,
     enableWeb3,
+    authError,
+    web3EnableError,
+    userError,
     Moralis,
     user,
   } = useMoralis()
@@ -38,7 +43,7 @@ export const AuthenticationProvider = ({ children }) => {
         try {
           await Moralis.switchNetwork('0x13881')
         } catch (error) {
-          if (error.code === 4902) {
+          if (error?.code === 4902) {
             try {
               await Moralis.addNetwork(
                 '0x13881',
@@ -60,42 +65,48 @@ export const AuthenticationProvider = ({ children }) => {
   }
 
   useEffect(() => {
-    authentication()
-    // Subscribe to onChainChanged events
-    const unsubscribeOnChainChanged = Moralis.onChainChanged((chain) => {
-      if (supportedChainIds.indexOf(chain as string) == -1) {
-        toast.error('This application is not supported on this chain.')
-        toast.info("Please switch to Polygon's mumbai testnet.")
-        switchNetworkMumbai()
-      }
-    })
+    if (isWeb3Enabled) {
+      // Subscribe to onChainChanged events
+      const unsubscribeOnChainChanged = Moralis.onChainChanged((chain) => {
+        if (supportedChainIds.indexOf(chain as string) == -1) {
+          toast.error('This application is not supported on this chain.')
+          toast.info("Please switch to Polygon's mumbai testnet.")
+          switchNetworkMumbai()
+        }
+      })
 
-    // Unsubscribe to onChainChanged events
-    const unsubscribeOnAccountChanged = Moralis.onAccountChanged(
-      async (address) => {
-        console.log('Account changed', address)
-        await authenticate({
-          signingMessage: 'Sign in to your account',
-        })
+      // Unsubscribe to onChainChanged events
+      const unsubscribeOnAccountChanged = Moralis.onAccountChanged(
+        async (address) => {
+          console.log('Account changed', address)
+          await authenticate({
+            signingMessage: 'Sign in to your account',
+          })
+        }
+      )
+      return () => {
+        unsubscribeOnAccountChanged()
+        unsubscribeOnChainChanged()
       }
-    )
-    return () => {
-      unsubscribeOnAccountChanged()
-      unsubscribeOnChainChanged()
     }
   }, [isWeb3Enabled])
 
-  const authentication = async () => {
-    try {
-      if (!isWeb3Enabled) {
-        await enableWeb3()
-      } else if (!isAuthenticated) {
-        await authenticate({
-          signingMessage: 'Sign in to your account',
-        })
-      }
-    } catch (e) {
-      console.log(e)
+  const getReadyForTransaction = async () => {
+    if (!isWeb3Enabled) {
+      await enableWeb3()
+    }
+    if (!isAuthenticated) {
+      await authenticate({
+        signingMessage: 'Sign in to your account',
+      })
+    }
+
+    if (web3EnableError) {
+      throw web3EnableError
+    } else if (authError) {
+      throw authError
+    } else if (userError) {
+      throw userError
     }
   }
 
@@ -128,6 +139,7 @@ export const AuthenticationProvider = ({ children }) => {
         user,
         isAuthenticated,
         isAuthenticating,
+        getReadyForTransaction,
       }}
     >
       {children}

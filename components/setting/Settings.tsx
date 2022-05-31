@@ -16,7 +16,8 @@ import { BBX_COMPETITION_ABI, CompetitionState } from '../../constants'
 import { useMoralis } from 'react-moralis'
 import { toast } from 'react-toastify'
 import { ChangeEvent, useEffect, useState } from 'react'
-import { getBeatboxCompetition } from '../../utils'
+import { errorLogging, getBeatboxCompetition } from '../../utils'
+import { useAuthentication } from '../../context/AuthenticationContext'
 
 interface SettingsProps {
   competition: ICompetition
@@ -30,6 +31,7 @@ export default function Settings({
   const { Moralis } = useMoralis()
   const { contractAddress } = router.query
   const [subscriptionId, setSubscriptionId] = useState(0)
+  const { getReadyForTransaction } = useAuthentication()
   const [isLoading, setIsLoading] = useState({
     start: false,
     end: false,
@@ -61,6 +63,7 @@ export default function Settings({
   const startWildcard = async () => {
     try {
       setIsLoading({ ...isLoading, start: true })
+      await getReadyForTransaction()
       const options = {
         contractAddress: contractAddress as string,
         abi: BBX_COMPETITION_ABI,
@@ -72,7 +75,7 @@ export default function Settings({
       await fetchMetaData()
       toast.success('Wildcard started!')
     } catch (error) {
-      toast.error(error.message)
+      errorLogging(error)
     }
     setIsLoading({ ...isLoading, start: false })
   }
@@ -80,6 +83,7 @@ export default function Settings({
   const endWildcard = async () => {
     try {
       setIsLoading({ ...isLoading, end: true })
+      await getReadyForTransaction()
       const options = {
         contractAddress: contractAddress as string,
         abi: BBX_COMPETITION_ABI,
@@ -91,7 +95,7 @@ export default function Settings({
       await fetchMetaData()
       toast.success('Wildcard ended!')
     } catch (error) {
-      toast.error(error.message)
+      errorLogging(error)
     }
     setIsLoading({ ...isLoading, end: false })
   }
@@ -99,6 +103,7 @@ export default function Settings({
   const updateSubscriptionId = async () => {
     try {
       setIsLoading({ ...isLoading, subscription: true })
+      await getReadyForTransaction()
       const options = {
         contractAddress: contractAddress as string,
         abi: BBX_COMPETITION_ABI,
@@ -111,7 +116,7 @@ export default function Settings({
       await endWildcardTx.wait()
       toast.success('Subscription Id set!')
     } catch (error) {
-      toast.error(error.message)
+      errorLogging(error)
     }
     setIsLoading({ ...isLoading, subscription: false })
   }

@@ -1,5 +1,6 @@
 import { ethers } from "ethers"
 import { BBX_COMPETITION_ABI } from "../constants"
+import { toast } from "react-toastify"
 
 export const getCategoryByState = (state: number) => {
     switch (state) {
@@ -23,4 +24,12 @@ export const getCategoryByState = (state: number) => {
 export const getBeatboxCompetition = (address: string) => {
     const provider = new ethers.providers.AlchemyProvider("maticmum", process.env.NEXT_PUBLIC_ALCHEMY_API_KEY)
     return new ethers.Contract(address, BBX_COMPETITION_ABI, provider)
+}
+
+export const errorLogging = (error: unknown) => {
+    if (error?.data?.message) {
+        toast.error(error.data.message)
+    } else {
+        toast.error(error?.message)
+    }
 }

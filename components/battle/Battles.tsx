@@ -8,7 +8,6 @@ import {
 } from '@chakra-ui/react'
 import { useMoralis } from 'react-moralis'
 import { useRouter } from 'next/router'
-import { BigNumber, ethers } from 'ethers'
 import { useEffect, useState } from 'react'
 import StartBattle from './StartBattle'
 import AllBattles from './AllBattles'
@@ -19,6 +18,7 @@ import { IBattle } from '../../interfaces'
 import { getBeatboxCompetition } from '../../utils'
 import Moralis from 'moralis'
 import { toast } from 'react-toastify'
+import { ethers } from 'ethers'
 interface BattlesProps {
   competition: ICompetition
   isJudge: boolean
@@ -79,29 +79,34 @@ export default function Battles({
         contractAddress as string
       )
 
-      const battles = await beatboxCompetition.getAllBattles()
-      const _battles: IBattle[] = (battles as IBattle[]).map((battle, id) => ({
-        id,
-        name: battle.name,
-        state: battle.state,
-        winningAmount: battle.winningAmount,
-        winnerId: battle.winnerId,
-        startTime: battle.startTime,
-        endTime: battle.endTime,
-        totalVotes: battle.totalVotes,
-        beatboxerOne: {
-          score: battle.beatboxerOne.score,
-          beatboxerId: battle.beatboxerOne.beatboxerId,
-          ytVideoId: bytes11ToString(battle.beatboxerOne.ytVideoId),
-          likeCount: battle.beatboxerOne.likeCount,
-        },
-        beatboxerTwo: {
-          score: battle.beatboxerTwo.score,
-          beatboxerId: battle.beatboxerTwo.beatboxerId,
-          ytVideoId: bytes11ToString(battle.beatboxerTwo.ytVideoId),
-          likeCount: battle.beatboxerTwo.likeCount,
-        },
-      }))
+      const battles = (await beatboxCompetition.getAllBattles()) as IBattle[]
+      const totalBattles = battles.length
+      const _battles: IBattle[] = []
+      for (let id = totalBattles - 1; id >= 0; id--) {
+        const battle = battles[id]
+        _battles.push({
+          id,
+          name: battle.name,
+          state: battle.state,
+          winningAmount: battle.winningAmount,
+          winnerId: battle.winnerId,
+          startTime: battle.startTime,
+          endTime: battle.endTime,
+          totalVotes: battle.totalVotes,
+          beatboxerOne: {
+            score: battle.beatboxerOne.score,
+            beatboxerId: battle.beatboxerOne.beatboxerId,
+            ytVideoId: bytes11ToString(battle.beatboxerOne.ytVideoId),
+            likeCount: battle.beatboxerOne.likeCount,
+          },
+          beatboxerTwo: {
+            score: battle.beatboxerTwo.score,
+            beatboxerId: battle.beatboxerTwo.beatboxerId,
+            ytVideoId: bytes11ToString(battle.beatboxerTwo.ytVideoId),
+            likeCount: battle.beatboxerTwo.likeCount,
+          },
+        })
+      }
       setBattles(_battles)
     } catch (error) {
       console.error(error)

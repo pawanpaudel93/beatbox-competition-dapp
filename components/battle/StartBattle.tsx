@@ -19,10 +19,15 @@ import { useMoralis } from 'react-moralis'
 import { useRouter } from 'next/router'
 import { toast } from 'react-toastify'
 import { ethers } from 'ethers'
-import { getBeatboxCompetition, getCategoryByState } from '../../utils'
+import {
+  errorLogging,
+  getBeatboxCompetition,
+  getCategoryByState,
+} from '../../utils'
 import { ICompetition } from '../../interfaces'
 import { BBX_COMPETITION_ABI, CompetitionState } from '../../constants'
 import dayjs from 'dayjs'
+import { useAuthentication } from '../../context/AuthenticationContext'
 
 interface CreateBattleProps {
   competition: ICompetition
@@ -64,6 +69,7 @@ export default function CreateBattle({
   const [startBlockNumber, setStartBlockNumber] = useState(0)
   const { Moralis } = useMoralis()
   const router = useRouter()
+  const { getReadyForTransaction } = useAuthentication()
   const { contractAddress } = router.query
 
   const fetchBattles = async () => {
@@ -142,6 +148,7 @@ export default function CreateBattle({
     e.preventDefault()
     setIsLoading(true)
     try {
+      await getReadyForTransaction()
       if (!(await isYtVideoValid(videoUrls[0]))) {
         toast.error(`Invalid Youtube Video url: ${videoUrls[0]}`)
         setIsLoading(false)
@@ -175,9 +182,7 @@ export default function CreateBattle({
       fetchAllBattles()
     } catch (error) {
       setIsLoading(false)
-      if (error?.data?.message) {
-        toast.error(error.data.message)
-      }
+      errorLogging(error)
     }
   }
 

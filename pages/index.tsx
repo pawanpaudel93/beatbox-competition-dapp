@@ -30,11 +30,11 @@ const Home: NextPage = () => {
                 zIndex: -1,
               }}
             >
-              Beatbox
+              Online
             </Text>
             <br />{' '}
             <Text color={'blue.400'} as={'span'}>
-              Online Competitions
+              Beatbox Competition
             </Text>{' '}
           </Heading>
           <Text fontSize={{ base: 'md', lg: 'lg' }} color={'gray.500'}>

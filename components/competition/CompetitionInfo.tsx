@@ -27,8 +27,9 @@ import { toast } from 'react-toastify'
 import { BBX_COMPETITION_ABI } from '../../constants'
 import { useMoralis } from 'react-moralis'
 import { useRouter } from 'next/router'
-import { getCategoryByState } from '../../utils'
+import { errorLogging, getCategoryByState } from '../../utils'
 import Contribute from '../modals/Contribute'
+import { useAuthentication } from '../../context/AuthenticationContext'
 interface CompetitionInfoProps {
   competition: ICompetition
   roles: IRoles
@@ -43,6 +44,7 @@ export default function CompetitionInfo({
   const { Moralis } = useMoralis()
   const router = useRouter()
   const { contractAddress } = router.query
+  const { getReadyForTransaction } = useAuthentication()
 
   useEffect(() => {
     setDescription(competition.description)
@@ -51,6 +53,7 @@ export default function CompetitionInfo({
   const changeDescription = async () => {
     try {
       setIsLoading(true)
+      await getReadyForTransaction()
       const options = {
         contractAddress: contractAddress as string,
         abi: BBX_COMPETITION_ABI,
@@ -71,7 +74,7 @@ export default function CompetitionInfo({
       }
       toast.success('Description changed!')
     } catch (error) {
-      toast.error(error.message)
+      errorLogging(error)
       setDescription(competition.description)
     }
     setIsLoading(false)

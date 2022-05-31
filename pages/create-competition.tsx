@@ -10,6 +10,9 @@ import {
   Input,
   Container,
   Textarea,
+  Alert,
+  AlertIcon,
+  AlertDescription,
 } from '@chakra-ui/react'
 import { ethers } from 'ethers'
 import { useMoralisFile } from 'react-moralis'
@@ -19,7 +22,8 @@ import {
   COMPETITION_FACTORY_ABI,
 } from '../constants'
 import { useMoralis } from 'react-moralis'
-import { toast } from 'react-toastify'
+import { useAuthentication } from '../context/AuthenticationContext'
+import { errorLogging } from '../utils'
 
 const CreateCompetition: NextPage = () => {
   const [name, setName] = useState('')
@@ -27,10 +31,11 @@ const CreateCompetition: NextPage = () => {
   const [image, setImage] = useState<File>()
   const [clearImage, setClearImage] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const { getReadyForTransaction, isAuthenticated } = useAuthentication()
 
   const { Moralis } = useMoralis()
 
-  const { saveFile } = useMoralisFile()
+  const { saveFile, isUploading } = useMoralisFile()
 
   const router = useRouter()
 
@@ -60,6 +65,9 @@ const CreateCompetition: NextPage = () => {
     e.preventDefault()
     try {
       setIsLoading(true)
+      if (!image) throw new Error('No image selected!')
+      await getReadyForTransaction()
+      if (!isAuthenticated) throw new Error('Please sign in to continue!')
       const imageURI = await uploadFile()
       const options = {
         contractAddress: COMPETITION_FACTORY_ADDRESS,
@@ -76,9 +84,9 @@ const CreateCompetition: NextPage = () => {
       clearForm()
       setIsLoading(false)
       router.push('/my-competitions')
-    } catch (e) {
+    } catch (error) {
       setIsLoading(false)
-      toast.error(e.message)
+      errorLogging(error)
     }
   }
 
@@ -107,22 +115,35 @@ const CreateCompetition: NextPage = () => {
             onChange={(e) => setDescription(e.target.value)}
           />
         </FormControl>
-
         <FileUpload
           handleImageCallback={handleImageCallback}
           handleImageClearCallback={handleImageClearCallback}
           clearImage={clearImage}
-          isRequired={true}
+          isUploading={isUploading}
         />
+
         <Center>
           <ButtonGroup padding={3} variant="outline" spacing="6">
-            <Button type="submit" colorScheme="blue" isLoading={isLoading}>
+            <Button
+              type="submit"
+              colorScheme="blue"
+              isLoading={isLoading}
+              isDisabled={!isAuthenticated}
+            >
               Create
             </Button>
             <Button onClick={clearForm}>Cancel</Button>
           </ButtonGroup>
         </Center>
       </form>
+      {!isAuthenticated && (
+        <Alert status="error">
+          <AlertIcon />
+          <AlertDescription>
+            Please signin to create a competition!
+          </AlertDescription>
+        </Alert>
+      )}
     </Container>
   )
 }

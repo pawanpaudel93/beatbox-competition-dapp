@@ -26,8 +26,9 @@ import { useMoralis } from 'react-moralis'
 import { toast } from 'react-toastify'
 import { IBattle, IPoint } from '../../interfaces'
 import { BBX_COMPETITION_ABI } from '../../constants'
-import { getCategoryByState } from '../../utils'
+import { errorLogging, getCategoryByState } from '../../utils'
 import { BigNumber } from 'ethers'
+import { useAuthentication } from '../../context/AuthenticationContext'
 
 export function VoteModal({
   battle,
@@ -43,6 +44,7 @@ export function VoteModal({
   fetchVotedBattlesIndices: () => Promise<void>
 }) {
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const { getReadyForTransaction } = useAuthentication()
   const { Moralis } = useMoralis()
   const { user } = useMoralis()
   const beatboxers = battle.name.split(' V/S ')
@@ -66,6 +68,7 @@ export function VoteModal({
     e.preventDefault()
     setIsLoading(true)
     try {
+      await getReadyForTransaction()
       const options = {
         contractAddress,
         abi: BBX_COMPETITION_ABI,
@@ -93,11 +96,7 @@ export function VoteModal({
       fetchVotedBattlesIndices()
     } catch (error) {
       setIsLoading(false)
-      if (error?.data?.message) {
-        toast.error(error.data.message)
-      } else {
-        toast.error(error.message)
-      }
+      errorLogging(error)
     }
   }
 

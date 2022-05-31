@@ -7,6 +7,8 @@ import {
   Image,
   Box,
   Container,
+  AlertIcon,
+  Alert,
 } from '@chakra-ui/react'
 import { AiFillFileAdd } from 'react-icons/ai'
 
@@ -14,14 +16,15 @@ type FileUploadProps = {
   handleImageCallback: (image: File) => void
   handleImageClearCallback: (clearImage: boolean) => void
   clearImage: boolean
-  isRequired: boolean
+
+  isUploading: boolean
 }
 
 export default function Dropzone({
   handleImageCallback,
   handleImageClearCallback,
   clearImage,
-  isRequired,
+  isUploading,
 }: FileUploadProps) {
   const defaultImage = {
     name: '',
@@ -74,16 +77,26 @@ export default function Dropzone({
         borderColor={borderColor}
         {...getRootProps()}
       >
-        <input {...getInputProps()} required={isRequired} />
+        <input {...getInputProps()} />
         <Icon as={AiFillFileAdd} mr={2} />
         <p>{dropText}</p>
       </Center>
-      {file.preview && (
+      {file.preview ? (
         <Box marginTop={3}>
           <Center>
             <Image src={file.preview} alt={file.name} w="50%" h="50%" />
           </Center>
         </Box>
+      ) : (
+        <Alert status="info">
+          <AlertIcon />A Competition image is required
+        </Alert>
+      )}
+      {isUploading && (
+        <Alert status="info" mt={4}>
+          <AlertIcon />
+          Uploading image...
+        </Alert>
       )}
     </Container>
   )
