@@ -117,6 +117,7 @@ export default function Battles({
     try {
       const Wildcard = Moralis.Object.extend('Wildcard')
       const query = new Moralis.Query(Wildcard)
+      query.equalTo("contractAddress", contractAddress as string)
       query.equalTo('isWinner', true)
       query.ascending('rank')
       const beatboxers = await query.find()
