@@ -65,8 +65,18 @@ export const AuthenticationProvider = ({ children }) => {
   }
 
   useEffect(() => {
-    if (isWeb3Enabled) {
-      // Subscribe to onChainChanged events
+    if (isAuthenticated && !isWeb3Enabled) {
+      ;(async () => {
+        try {
+          console.log('enabling web3')
+          await enableWeb3()
+        } catch (error) {
+          console.log(error)
+        }
+      })()
+    }
+
+    if (isAuthenticated && isWeb3Enabled) {
       const unsubscribeOnChainChanged = Moralis.onChainChanged((chain) => {
         if (supportedChainIds.indexOf(chain as string) == -1) {
           toast.error('This application is not supported on this chain.')
@@ -89,7 +99,7 @@ export const AuthenticationProvider = ({ children }) => {
         unsubscribeOnChainChanged()
       }
     }
-  }, [isWeb3Enabled])
+  }, [isAuthenticated, isWeb3Enabled])
 
   const getReadyForTransaction = async () => {
     if (!isWeb3Enabled) {

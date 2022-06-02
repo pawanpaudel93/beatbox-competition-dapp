@@ -8,7 +8,7 @@ import { ethers } from 'ethers'
 const Competitions: NextPage = () => {
   const { data, isFetching, isLoading, error } = useMoralisQuery(
     'Competition',
-    (query) => query,
+    (query) => query.descending('createdAt'),
     [],
     {
       autoFetch: true,

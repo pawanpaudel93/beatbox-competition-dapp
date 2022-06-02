@@ -19,6 +19,7 @@ import { getBeatboxCompetition, getCategoryByState } from '../../utils'
 import { ethers } from 'ethers'
 import Moralis from 'moralis/types'
 import LiteYouTubeEmbed from 'react-lite-youtube-embed'
+import { useState } from 'react'
 
 export default function SingleBattle({
   battle,
@@ -45,17 +46,18 @@ export default function SingleBattle({
   const Video = ({ videoId }: { videoId: string }) => {
     return <LiteYouTubeEmbed id={videoId} title="YouTube Embed" />
   }
+  const [isLoading, setIsLoading] = useState(false)
   const Winner = ({ battle }: { battle: IBattle }) => {
     if (battle.winnerId.eq(NOT_WINNER)) {
       return (
         <Text>
-          Winner: <Tag>Not yet</Tag>
+          <b>Winner:</b> <Tag>Not yet</Tag>
         </Text>
       )
     } else if (battle.winnerId.eq(battle.beatboxerOne.beatboxerId)) {
       return (
         <Text>
-          Winner:{' '}
+          <b>Winner:</b>{' '}
           <Tag>
             {
               beatboxers[battle.beatboxerOne.beatboxerId.toNumber()].attributes
@@ -67,7 +69,7 @@ export default function SingleBattle({
     } else {
       return (
         <Text>
-          Winner:{' '}
+          <b>Winner:</b>{' '}
           <Tag>
             {
               beatboxers[battle.beatboxerTwo.beatboxerId.toNumber()].attributes
@@ -81,6 +83,7 @@ export default function SingleBattle({
 
   const fetchBattlePoints = async (battle: IBattle) => {
     try {
+      setIsLoading(true)
       const beatboxCompetition = getBeatboxCompetition(contractAddress)
       const battlePoints = await beatboxCompetition.getBattlePoints(battle.id)
       setBattlePoints(battlePoints)
@@ -89,6 +92,7 @@ export default function SingleBattle({
     } catch (err) {
       console.log(err)
     }
+    setIsLoading(false)
   }
 
   return (
@@ -131,17 +135,18 @@ export default function SingleBattle({
               </Box>
               <Box p={0} alignSelf="center">
                 <Text>
-                  Start:{' '}
+                  <b>Start:</b>{' '}
                   {dayjs(battle.startTime.toNumber() * 1000).format(
                     'MMM DD hh:mm A'
                   )}
                 </Text>
                 <Text>
-                  End:{' '}
+                  <b>End:</b>{' '}
                   {dayjs(battle.endTime.toNumber() * 1000).format(
                     'MMM DD hh:mm A'
                   )}
                 </Text>
+                <Text><b>Winning Amount:</b> {ethers.utils.formatEther(battle.winningAmount)} MATIC</Text>
                 <Winner battle={battle} />
               </Box>
               <Box pt={2} alignSelf="center">
@@ -153,8 +158,8 @@ export default function SingleBattle({
                   isVoted={isVoted}
                 />
               </Box>
-
-              <Button onClick={(e) => fetchBattlePoints(battle)} mt={6}>
+              
+              <Button onClick={(e) => fetchBattlePoints(battle)} mt={6} isLoading={isLoading}>
                 View Judge Points
               </Button>
             </VStack>

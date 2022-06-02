@@ -115,11 +115,15 @@ export default function CreateBattle({
       )
       beatboxCompetition.on('OpponentsSelected', (state, event) => {
         if (event.blockNumber > startBlockNumber) {
+          setLatestBlockNumber(beatboxCompetition)
           toast.success('Latest round battles has been selected')
           fetchBattles()
-          setLatestBlockNumber(beatboxCompetition)
+          
         }
       })
+      return () => {
+        beatboxCompetition.removeAllListeners()
+      }
     }
   }, [contractAddress])
 

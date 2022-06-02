@@ -34,13 +34,15 @@ type SelectWinnersProps = {
   wildcards: Moralis.Object<Moralis.Attributes>[]
   roles: IRoles
   contractAddress: string
-  competition: ICompetition
+  competition: ICompetition,
+  fetchJudgeWildcardVoted: () => Promise<void>
 }
 
 export default function SelectWinners({
   wildcards,
   contractAddress,
   roles,
+  fetchJudgeWildcardVoted,
 }: SelectWinnersProps) {
   const seedData = wildcards.map((wildcard) => ({
     label: wildcard.attributes.name,
@@ -145,6 +147,7 @@ export default function SelectWinners({
           contractAddress,
         })
         toast.success('Successfully selected winners!')
+        fetchJudgeWildcardVoted()
         onClose()
       } catch (error) {
         errorLogging(error)

@@ -14,6 +14,9 @@ import Moralis from 'moralis'
 import dayjs from 'dayjs'
 import { ICompetition, IRoles } from '../../interfaces'
 import Video from '../Video'
+import { useState, useEffect } from 'react'
+import { useAuthentication } from '../../context/AuthenticationContext'
+import { useMoralis } from 'react-moralis'
 
 interface WildcardWinnersProps {
   allWildcards: Moralis.Object<Moralis.Attributes>[]
@@ -28,12 +31,34 @@ export default function WildcardWinners({
 }: WildcardWinnersProps) {
   const router = useRouter()
   const { contractAddress } = router.query
+  const { user } = useAuthentication()
+  const { Moralis } = useMoralis()
+  const [wildcards] = useState(
+    allWildcards.filter((w) => w.attributes.isWinner)
+  )
+  const [judgeWildcardVoted, setJudgeWildcardVoted] = useState(false)
 
-  const wildcards = allWildcards.filter((w) => w.attributes.isWinner)
+  const fetchJudgeWildcardVoted = async () => {
+    try {
+      const query = new Moralis.Query('WildcardWinners')
+      query.equalTo('judgeAddress', user?.get('ethAddress'))
+      query.equalTo('contractAddress', contractAddress)
+      const judgeWildcards = await query.find()
+      setJudgeWildcardVoted(judgeWildcards.length > 0)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  useEffect(() => {
+    if (user?.get('ethAddress') && contractAddress) {
+      fetchJudgeWildcardVoted()
+    }
+  }, [user?.get('ethAddress'), contractAddress])
 
   return (
     <>
-      {(roles.isAdmin || roles.isJudge) &&
+      {(roles.isAdmin || (roles.isJudge && !judgeWildcardVoted)) &&
         contractAddress &&
         allWildcards.length > 0 &&
         wildcards.length === 0 && (
@@ -42,6 +67,7 @@ export default function WildcardWinners({
             wildcards={allWildcards}
             contractAddress={contractAddress as string}
             roles={roles}
+            fetchJudgeWildcardVoted={fetchJudgeWildcardVoted}
           />
         )}
       {wildcards.length > 0 ? (

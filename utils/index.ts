@@ -22,7 +22,7 @@ export const getCategoryByState = (state: number) => {
 }
 
 export const getBeatboxCompetition = (address: string) => {
-    const provider = new ethers.providers.AlchemyProvider("maticmum", process.env.NEXT_PUBLIC_ALCHEMY_API_KEY)
+    const provider = new ethers.providers.JsonRpcProvider(process.env.NEXT_PUBLIC_MORALIS_SPEEDY_NODE)
     return new ethers.Contract(address, BBX_COMPETITION_ABI, provider)
 }
 

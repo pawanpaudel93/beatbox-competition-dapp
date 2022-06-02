@@ -13,7 +13,6 @@ import { ethers } from 'ethers'
 import Wildcards from '../../components/wildcard/Wildcards'
 import Judges from '../../components/judge/Judges'
 import CompetitionInfo from '../../components/competition/CompetitionInfo'
-import { BBX_COMPETITION_ABI } from '../../constants'
 import { ICompetition, IRoles } from '../../interfaces'
 import { useMoralis } from 'react-moralis'
 import Battles from '../../components/battle/Battles'
@@ -25,7 +24,7 @@ import 'react-lite-youtube-embed/dist/LiteYouTubeEmbed.css'
 
 const ContractDetail: NextPage = () => {
   const router = useRouter()
-  const { user, Moralis } = useMoralis()
+  const { user } = useMoralis()
   const [competition, setCompetition] = useState<ICompetition>({
     name: '',
     description: '',
@@ -67,15 +66,8 @@ const ContractDetail: NextPage = () => {
 
   const fetchRoles = async () => {
     try {
-      const options = {
-        contractAddress: contractAddress as string,
-        functionName: 'getRoles',
-        abi: BBX_COMPETITION_ABI,
-        params: {
-          _address: user?.get('ethAddress') as string,
-        },
-      }
-      const _roles = (await Moralis.executeFunction(options)) as boolean[]
+      const beatboxCompetition = getBeatboxCompetition(contractAddress as string)
+      const _roles: boolean[] = await beatboxCompetition.getRoles(user?.get('ethAddress') as string)
       setRoles({
         isAdmin: _roles[0],
         isHelper: _roles[1],
@@ -113,8 +105,7 @@ const ContractDetail: NextPage = () => {
         <TabPanel>
           <Battles
             competition={competition}
-            isJudge={roles.isJudge}
-            isAdmin={roles.isAdmin}
+            roles={roles}
           />
         </TabPanel>
         <TabPanel>

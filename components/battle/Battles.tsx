@@ -12,8 +12,7 @@ import { useEffect, useState } from 'react'
 import StartBattle from './StartBattle'
 import AllBattles from './AllBattles'
 import MyBattles from './MyBattles'
-import { ICompetition, IPoint } from '../../interfaces'
-import { BBX_COMPETITION_ABI } from '../../constants'
+import { ICompetition, IPoint, IRoles } from '../../interfaces'
 import { IBattle } from '../../interfaces'
 import { getBeatboxCompetition } from '../../utils'
 import Moralis from 'moralis'
@@ -21,14 +20,12 @@ import { toast } from 'react-toastify'
 import { ethers } from 'ethers'
 interface BattlesProps {
   competition: ICompetition
-  isJudge: boolean
-  isAdmin: boolean
+  roles: IRoles
 }
 
 export default function Battles({
   competition,
-  isJudge,
-  isAdmin,
+  roles
 }: BattlesProps) {
   const { user, Moralis } = useMoralis()
   const router = useRouter()
@@ -48,17 +45,8 @@ export default function Battles({
 
   const fetchVotedBattlesIndices = async () => {
     try {
-      const options = {
-        contractAddress: contractAddress as string,
-        functionName: 'getVotedBattlesIndices',
-        abi: BBX_COMPETITION_ABI,
-        params: {
-          judge: user?.get('ethAddress') as string,
-        },
-      }
-      const votedBattlesIndices = (await Moralis.executeFunction(
-        options
-      )) as number[]
+      const beatboxCompetition = getBeatboxCompetition(contractAddress as string)
+      const votedBattlesIndices: number[] = await beatboxCompetition.getVotedBattlesIndices(user?.get('ethAddress') as string)
       const _votedBattles = votedBattlesIndices.reduce(
         (acc, index) => ({ ...acc, [index]: true }),
         {}
@@ -174,9 +162,9 @@ export default function Battles({
       beatboxCompetition.on('WinnerSelected', (battleId, winnerId, event) => {
         console.log(battleId, winnerId, event)
         if (event.blockNumber > startBlockNumber) {
+          setLatestBlockNumber(beatboxCompetition)
           toast.success('Latest battle winner selected')
           fetchAllBattles()
-          setLatestBlockNumber(beatboxCompetition)
         }
       })
       return () => {
@@ -188,13 +176,13 @@ export default function Battles({
   return (
     <Tabs>
       <TabList>
-        {isAdmin && <Tab>Start Battle</Tab>}
+        {roles.isAdmin && <Tab>Start Battle</Tab>}
         <Tab>All Battles</Tab>
         <Tab>My Battle</Tab>
       </TabList>
 
       <TabPanels>
-        {isAdmin && (
+        {roles.isAdmin && (
           <TabPanel>
             <StartBattle
               competition={competition}
@@ -205,7 +193,7 @@ export default function Battles({
         )}
         <TabPanel>
           <AllBattles
-            isJudge={isJudge}
+            isJudge={roles.isJudge}
             votedBattles={votedBattles}
             fetchVotedBattlesIndices={fetchVotedBattlesIndices}
             battles={battles}
@@ -224,7 +212,7 @@ export default function Battles({
           {beatboxers.length > 0 && (
             <MyBattles
               fetchVotedBattlesIndices={fetchVotedBattlesIndices}
-              isJudge={isJudge}
+              isJudge={roles.isJudge}
               votedBattles={votedBattles}
               beatboxers={beatboxers}
               battles={battles.filter(

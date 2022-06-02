@@ -168,7 +168,6 @@ export default function NavBar() {
                       <br />
                       <MenuDivider />
                       <MenuItem
-                        color="red"
                         justifyContent="center"
                         onClick={signout}
                       >
